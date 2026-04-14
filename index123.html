@@ -1,0 +1,1417 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>이음 통합돌봄 플랫폼</title>
+<style>
+:root{--primary:#FF6B9D;--primary-light:#FF8FAB;--primary-dark:#FF4D7D;--accent:#FFB6C1;--bg:#FFF0F5;--white:#ffffff;--text:#333333;--text-light:#888888;--border:#FFD6E4;--success:#2ecc71;--success-dark:#27ae60;--warning:#f39c12;--danger:#e74c3c;--shadow:0 2px 10px rgba(255,107,157,0.15);--radius:12px;}
+*{box-sizing:border-box;margin:0;padding:0;}html{font-size:17px;}
+body{font-family:'Malgun Gothic','맑은 고딕','나눔고딕',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;padding-bottom:70px;}
+a{color:var(--primary-dark);text-decoration:none;}a:hover{text-decoration:underline;}
+button{cursor:pointer;font-family:inherit;font-size:1rem;border:none;border-radius:var(--radius);padding:12px 20px;transition:all 0.2s;}
+button:active{transform:scale(0.97);}
+input,select,textarea{font-family:inherit;font-size:1rem;border:2px solid var(--border);border-radius:8px;padding:10px 14px;width:100%;outline:none;transition:border-color 0.2s;background:#fff;}
+input:focus,select:focus,textarea:focus{border-color:var(--primary);}
+.container{max-width:900px;margin:0 auto;padding:0 16px;}
+#top-nav{background:var(--primary);position:sticky;top:0;z-index:100;box-shadow:0 2px 8px rgba(255,107,157,0.35);}
+#top-nav .nav-inner{display:flex;align-items:center;max-width:1100px;margin:0 auto;padding:0 16px;}
+#top-nav .logo{color:#fff;font-size:1.1rem;font-weight:800;padding:14px 0;white-space:nowrap;margin-right:20px;}
+#top-nav .logo span{color:#ffe0ec;}
+#top-nav .nav-links{display:flex;flex:1;flex-wrap:wrap;}
+#top-nav .nav-links button{background:transparent;color:rgba(255,255,255,0.85);border-radius:0;padding:16px 12px;font-size:0.88rem;border-bottom:3px solid transparent;white-space:nowrap;}
+#top-nav .nav-links button:hover{color:#fff;background:rgba(255,255,255,0.12);}
+#top-nav .nav-links button.active{color:#fff;border-bottom:3px solid #fff;font-weight:700;}
+#top-nav .nav-login-btn{background:rgba(255,255,255,0.2);color:#fff;border-radius:20px;padding:8px 16px;font-size:0.88rem;border:1px solid rgba(255,255,255,0.5);margin-left:8px;white-space:nowrap;}
+#top-nav .nav-login-btn:hover{background:rgba(255,255,255,0.35);}
+#bottom-nav{display:none;position:fixed;bottom:0;left:0;right:0;background:var(--primary);z-index:100;box-shadow:0 -2px 8px rgba(255,107,157,0.3);}
+#bottom-nav .bnav-inner{display:flex;justify-content:space-around;}
+#bottom-nav button{background:transparent;color:rgba(255,255,255,0.75);flex:1;padding:9px 2px 7px;border-radius:0;font-size:0.62rem;display:flex;flex-direction:column;align-items:center;gap:2px;border-top:3px solid transparent;}
+#bottom-nav button .bi{font-size:1.25rem;line-height:1;}
+#bottom-nav button.active{color:#fff;border-top:3px solid #fff;background:rgba(255,255,255,0.12);}
+@media(max-width:768px){#top-nav .nav-links{display:none;}#top-nav .nav-login-btn{display:none;}#bottom-nav{display:block;}body{padding-bottom:78px;}}
+.page{display:none;animation:fadeIn 0.22s ease;}.page.active{display:block;}
+@keyframes fadeIn{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:translateY(0);}}
+.back-btn{display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,0.25);color:#fff;border-radius:20px;padding:7px 16px;font-size:0.88rem;font-weight:600;border:1px solid rgba(255,255,255,0.5);margin-bottom:10px;}
+.back-btn:hover{background:rgba(255,255,255,0.4);}
+.hero{background:linear-gradient(135deg,var(--primary) 0%,var(--primary-light) 100%);color:#fff;padding:38px 16px 34px;text-align:center;}
+.hero h1{font-size:1.85rem;font-weight:800;margin-bottom:10px;}.hero h1 span{color:#ffe0ec;}
+.hero p{font-size:1rem;opacity:0.93;max-width:560px;margin:0 auto;line-height:1.65;}
+@media(max-width:480px){.hero h1{font-size:1.35rem;}}
+.page-header{background:linear-gradient(90deg,var(--primary) 0%,var(--primary-light) 100%);color:#fff;padding:20px 16px 16px;margin-bottom:18px;}
+.page-header h2{font-size:1.25rem;font-weight:800;}.page-header p{font-size:0.88rem;opacity:0.88;margin-top:4px;}
+.cards-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;padding:24px 0 8px;}
+@media(max-width:768px){.cards-grid{grid-template-columns:repeat(2,1fr);}}
+.card{background:var(--white);border-radius:var(--radius);box-shadow:var(--shadow);padding:20px 12px 16px;text-align:center;cursor:pointer;border:2px solid transparent;transition:all 0.2s;}
+.card:hover{border-color:var(--primary);box-shadow:0 4px 18px rgba(255,107,157,0.25);transform:translateY(-3px);}
+.card .card-icon{font-size:2.1rem;margin-bottom:9px;}.card h3{font-size:0.97rem;color:var(--primary-dark);font-weight:700;margin-bottom:5px;}.card p{font-size:0.8rem;color:var(--text-light);line-height:1.5;}
+.section-title{font-size:1.05rem;font-weight:700;color:var(--primary-dark);margin:24px 0 12px;padding-bottom:8px;border-bottom:2px solid var(--primary);display:flex;align-items:center;gap:8px;}
+.quick-links{display:flex;flex-wrap:wrap;gap:9px;margin-bottom:18px;}
+.quick-btn{background:var(--white);color:var(--primary-dark);border:2px solid var(--primary-light);border-radius:22px;padding:9px 16px;font-size:0.88rem;font-weight:600;transition:all 0.2s;}
+.quick-btn:hover{background:var(--primary);color:#fff;border-color:var(--primary);}
+.box{background:var(--white);border-radius:var(--radius);box-shadow:var(--shadow);padding:22px;margin-bottom:18px;}
+.box-title{font-size:1.05rem;font-weight:700;color:var(--primary-dark);margin-bottom:16px;padding-bottom:10px;border-bottom:2px solid #FFE4EE;display:flex;align-items:center;gap:8px;}
+.btn-primary{background:var(--primary);color:#fff;font-size:1rem;font-weight:700;padding:13px 24px;border-radius:9px;width:100%;margin-top:14px;}
+.btn-primary:hover{background:var(--primary-dark);}
+.btn-secondary{background:#FFF0F5;color:var(--primary-dark);font-weight:700;padding:11px 20px;border-radius:8px;border:2px solid var(--primary-light);}
+.btn-secondary:hover{background:var(--accent);color:var(--primary-dark);}
+.btn-success{background:var(--success);color:#fff;font-weight:700;padding:12px 22px;border-radius:8px;}
+.btn-success:hover{background:var(--success-dark);}
+.btn-sm{padding:7px 14px;font-size:0.85rem;}
+.tabs-secondary{display:flex;gap:0;border-bottom:2px solid var(--border);margin-bottom:22px;flex-wrap:wrap;}
+.tabs-secondary button{background:transparent;color:var(--text-light);border-radius:0;padding:11px 20px;font-size:0.95rem;font-weight:600;border-bottom:3px solid transparent;margin-bottom:-2px;}
+.tabs-secondary button.active{color:var(--primary-dark);border-bottom:3px solid var(--primary);}
+.form-group{margin-bottom:16px;}.form-group label{display:block;font-weight:700;margin-bottom:6px;color:#555;font-size:0.93rem;}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+@media(max-width:480px){.form-row{grid-template-columns:1fr;}}
+.radio-group{display:flex;gap:10px;flex-wrap:wrap;}
+.radio-group label{display:flex;align-items:center;gap:8px;padding:9px 14px;border:2px solid var(--border);border-radius:8px;cursor:pointer;font-size:0.92rem;transition:all 0.2s;}
+.radio-group input[type="radio"]{width:auto;accent-color:var(--primary);}
+.radio-group label:has(input:checked){border-color:var(--primary);background:#FFF0F5;}
+.checkbox-group{display:flex;flex-wrap:wrap;gap:8px;}
+.checkbox-group label{display:flex;align-items:center;gap:7px;padding:8px 13px;border:2px solid var(--border);border-radius:8px;cursor:pointer;font-size:0.88rem;}
+.checkbox-group input[type="checkbox"]{width:auto;accent-color:var(--primary);}
+.checkbox-group label:has(input:checked){border-color:var(--primary);background:#FFF0F5;}
+.alert-box{padding:14px 16px;border-radius:8px;margin-top:14px;display:none;font-size:0.97rem;line-height:1.6;}
+.alert-success{background:#d5f5e3;border:2px solid #1e8449;color:#1a5e2a;}
+.alert-info{background:#FFF0F5;border:2px solid var(--primary-light);color:var(--primary-dark);}
+.alert-warn{background:#fff3cd;border:2px solid #ffc107;color:#856404;}
+.diag-step{display:none;}.diag-step.active{display:block;}
+.diag-category{font-size:0.82rem;font-weight:700;color:var(--primary);background:#FFF0F5;padding:4px 12px;border-radius:20px;display:inline-block;margin-bottom:14px;}
+.diag-question{font-size:1.1rem;font-weight:700;line-height:1.6;color:var(--text);margin-bottom:20px;}
+.diag-yn-row{display:flex;gap:14px;justify-content:center;}
+.diag-yn-btn{flex:1;max-width:160px;padding:18px;font-size:1.1rem;font-weight:700;border-radius:12px;border:3px solid var(--border);background:var(--white);transition:all 0.2s;}
+.diag-yn-btn.yes:hover,.diag-yn-btn.yes.selected{background:var(--primary);color:#fff;border-color:var(--primary);}
+.diag-yn-btn.no:hover,.diag-yn-btn.no.selected{background:#777;color:#fff;border-color:#777;}
+.diag-progress{background:#FFE4EE;border-radius:10px;height:8px;margin-bottom:20px;overflow:hidden;}
+.diag-progress-bar{background:var(--primary);height:100%;border-radius:10px;transition:width 0.4s ease;}
+.diag-step-count{font-size:0.82rem;color:var(--text-light);text-align:right;margin-bottom:8px;}
+.diag-result-box{border-radius:12px;padding:22px;margin-top:10px;}
+.diag-result-pos{background:#FFF0F5;border:2px solid var(--primary);}
+.diag-result-neg{background:#f0fff4;border:2px solid #2ecc71;}
+.diag-answer-list{margin-top:16px;}
+.diag-answer-item{display:flex;align-items:flex-start;gap:10px;padding:8px 0;border-bottom:1px solid var(--border);font-size:0.9rem;}
+.diag-answer-item:last-child{border-bottom:none;}
+.ans-badge{font-size:0.78rem;font-weight:700;padding:3px 9px;border-radius:10px;white-space:nowrap;}
+.ans-yes{background:#FFE4EE;color:var(--primary-dark);}.ans-no{background:#f0f0f0;color:#666;}
+.welcome-banner{background:linear-gradient(135deg,var(--primary) 0%,var(--primary-light) 100%);color:#fff;border-radius:var(--radius);padding:20px 22px;margin-bottom:18px;}
+.welcome-banner h2{font-size:1.15rem;margin-bottom:4px;}.welcome-banner p{font-size:0.88rem;opacity:0.88;}
+.condition-buttons{display:flex;gap:9px;flex-wrap:wrap;margin-top:10px;}
+.condition-btn{background:#f9f9f9;border:2px solid var(--border);border-radius:10px;padding:10px 14px;font-size:1rem;cursor:pointer;transition:all 0.2s;}
+.condition-btn.selected{background:#FFF0F5;border-color:var(--primary);box-shadow:0 0 0 2px #FFD6E4;}
+.recent-record{padding:13px 0;border-bottom:1px solid var(--border);display:grid;grid-template-columns:100px 1fr 2fr;gap:10px;align-items:center;}
+.recent-record:last-child{border-bottom:none;}
+.record-date{font-size:0.83rem;color:var(--text-light);}
+.contact-card{background:#FFF0F5;border-left:4px solid var(--primary);border-radius:8px;padding:13px 16px;margin-bottom:10px;}
+.contact-card strong{color:var(--primary-dark);display:block;margin-bottom:4px;}
+.contact-card span{font-size:0.88rem;color:var(--text-light);}
+.chatbot-wrap{display:flex;flex-direction:column;height:calc(100vh - 180px);min-height:440px;background:var(--white);border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden;}
+.chat-header{background:var(--primary);color:#fff;padding:15px 18px;font-weight:700;font-size:1rem;display:flex;align-items:center;gap:10px;}
+.chat-messages{flex:1;overflow-y:auto;padding:18px 14px;display:flex;flex-direction:column;gap:13px;background:#FFF8FC;}
+.msg{max-width:78%;}.msg-bot{align-self:flex-start;}.msg-user{align-self:flex-end;}
+.msg-bubble{padding:11px 15px;border-radius:16px;font-size:0.95rem;line-height:1.65;}
+.msg-bot .msg-bubble{background:#fff;border:1px solid var(--border);border-radius:4px 16px 16px 16px;box-shadow:0 1px 4px rgba(0,0,0,0.06);}
+.msg-user .msg-bubble{background:var(--primary);color:#fff;border-radius:16px 4px 16px 16px;}
+.msg-sender{font-size:0.77rem;color:var(--text-light);margin-bottom:4px;}
+.msg-user .msg-sender{text-align:right;}
+.faq-buttons{padding:10px 14px 7px;display:flex;flex-wrap:wrap;gap:7px;border-top:1px solid var(--border);background:#fff;}
+.faq-btn{background:#FFF0F5;color:var(--primary-dark);border:1.5px solid var(--primary-light);border-radius:18px;padding:7px 13px;font-size:0.83rem;font-weight:600;}
+.faq-btn:hover{background:var(--primary);color:#fff;}
+.chat-input-row{display:flex;gap:8px;padding:11px 13px;border-top:1px solid var(--border);background:#fff;}
+.chat-input-row input{flex:1;border-radius:22px;padding:9px 16px;}
+.chat-send-btn{background:var(--primary);color:#fff;border-radius:22px;padding:9px 18px;font-weight:700;white-space:nowrap;}
+.chat-send-btn:hover{background:var(--primary-dark);}
+.board-table{width:100%;border-collapse:collapse;}
+.board-table th{background:var(--primary);color:#fff;padding:11px 9px;text-align:left;font-size:0.88rem;}
+.board-table td{padding:13px 9px;border-bottom:1px solid var(--border);vertical-align:middle;font-size:0.93rem;}
+.board-table tr:hover td{background:#FFF0F5;}
+.status-badge{display:inline-block;padding:3px 9px;border-radius:11px;font-size:0.77rem;font-weight:700;}
+.badge-wait{background:#fff3cd;color:#856404;border:1px solid #ffc107;}
+.badge-done{background:#d5f5e3;color:#1e8449;border:1px solid #a9dfbf;}
+@media(max-width:600px){.board-table thead{display:none;}.board-table tr{display:block;margin-bottom:10px;border:1px solid var(--border);border-radius:8px;padding:10px;}.board-table td{display:block;padding:5px 3px;border-bottom:none;font-size:0.9rem;}.board-table td::before{content:attr(data-label);font-weight:700;color:var(--primary-dark);margin-right:8px;}}
+.inst-tabs-wrap{overflow-x:auto;white-space:nowrap;}
+.inst-tabs{display:inline-flex;gap:4px;background:#FFE4EE;padding:5px 7px;border-radius:10px 10px 0 0;min-width:100%;}
+.inst-tab-btn{background:transparent;color:var(--primary-dark);border-radius:8px;padding:8px 13px;font-size:0.83rem;font-weight:600;white-space:nowrap;border:1.5px solid transparent;}
+.inst-tab-btn.active{background:var(--primary);color:#fff;}
+.inst-tab-btn:hover:not(.active){background:#FFD6E4;}
+.subject-card{background:var(--white);border:1.5px solid var(--border);border-radius:10px;padding:15px 16px;margin-bottom:12px;box-shadow:0 1px 5px rgba(255,107,157,0.08);}
+.subject-card .s-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;}
+.subject-card .s-name{font-weight:700;font-size:0.97rem;color:var(--text);}
+.subject-card .s-req{font-size:0.9rem;color:var(--text);margin-top:4px;}
+.link-form{background:#FFF8FC;border:1px dashed var(--primary-light);border-radius:8px;padding:13px;margin-top:10px;display:none;}
+.link-form.open{display:block;}.link-form select,.link-form textarea{margin-bottom:9px;}
+.unanswered-item{padding:13px 0;border-bottom:1px solid var(--border);}
+.unanswered-item:last-child{border-bottom:none;}
+.unanswered-item .q-title{font-weight:700;margin-bottom:5px;font-size:0.95rem;}
+.unanswered-item .q-meta{font-size:0.8rem;color:var(--text-light);margin-bottom:8px;}
+.answer-row{display:flex;gap:8px;margin-top:8px;}.answer-row textarea{resize:vertical;min-height:58px;}
+.received-item{background:#FFF0F5;border-left:4px solid var(--primary-light);border-radius:8px;padding:11px 14px;margin-bottom:9px;font-size:0.9rem;}
+.received-item .ri-from{font-weight:700;color:var(--primary-dark);margin-bottom:4px;font-size:0.83rem;}
+.patient-table{width:100%;border-collapse:collapse;}
+.patient-table th{background:var(--primary);color:#fff;padding:10px 8px;text-align:left;font-size:0.85rem;}
+.patient-table td{padding:11px 8px;border-bottom:1px solid var(--border);font-size:0.88rem;vertical-align:middle;}
+.patient-table tr:hover td{background:#FFF0F5;cursor:pointer;}
+.status-pill{display:inline-block;padding:3px 10px;border-radius:12px;font-size:0.77rem;font-weight:700;}
+.s-apply{background:#e8f4ff;color:#1a6bb5;}.s-visit{background:#fff3cd;color:#856404;}.s-active{background:#d5f5e3;color:#1e8449;}.s-end{background:#f0f0f0;color:#666;}
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.45);z-index:9000;align-items:center;justify-content:center;padding:20px;}
+.modal-overlay.open{display:flex;}
+.modal-box{background:#fff;border-radius:14px;padding:26px;max-width:560px;width:100%;max-height:90vh;overflow-y:auto;box-shadow:0 8px 40px rgba(0,0,0,0.2);}
+.modal-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px;padding-bottom:12px;border-bottom:2px solid var(--border);}
+.modal-header h3{font-size:1.05rem;color:var(--primary-dark);font-weight:800;}
+.modal-close{background:none;border:none;font-size:1.4rem;color:#aaa;padding:0 4px;cursor:pointer;border-radius:50%;}
+.modal-close:hover{color:var(--danger);background:#fff0f0;}
+.status-flow{display:flex;gap:6px;flex-wrap:wrap;}
+.status-flow-btn{padding:8px 14px;font-size:0.85rem;font-weight:600;border-radius:8px;border:2px solid var(--border);background:#f9f9f9;color:#666;}
+.status-flow-btn.selected{border-color:var(--primary);background:var(--primary);color:#fff;}
+/* METHOD BUTTONS - checkbox style */
+.method-btn-group{display:flex;flex-wrap:wrap;gap:8px;}
+.method-btn{background:#f9f9f9;color:#555;border:2px solid var(--border);border-radius:8px;padding:9px 18px;font-size:0.92rem;font-weight:600;transition:all 0.2s;}
+.method-btn:hover{border-color:var(--primary-light);}
+.method-btn.selected{background:var(--primary);color:#fff;border-color:var(--primary);}
+/* CLIENT SELECT PANEL */
+.client-panel{display:flex;flex-wrap:wrap;gap:8px;padding:12px;background:#FFF8FC;border-radius:8px;border:2px dashed var(--border);min-height:54px;}
+.client-btn{background:#fff;border:2px solid var(--border);border-radius:22px;padding:7px 14px;font-size:0.88rem;cursor:pointer;transition:all 0.2s;font-family:inherit;}
+.client-btn:hover{border-color:var(--primary-light);}
+.client-btn.selected{background:var(--primary);color:#fff;border-color:var(--primary);}
+/* REPORT DOC */
+.report-doc{background:#fff;border:1px solid #ddd;border-radius:8px;padding:32px 36px;font-family:'Malgun Gothic','맑은 고딕',sans-serif;font-size:0.92rem;line-height:1.7;max-width:700px;margin:0 auto;}
+.report-doc .doc-header-row{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:24px;}
+.report-doc .doc-sender{font-size:1rem;font-weight:700;}
+.report-doc .doc-docno{font-size:0.82rem;color:#666;text-align:right;line-height:1.8;}
+.report-doc .doc-title{text-align:center;font-size:1.35rem;font-weight:800;letter-spacing:0.15em;margin-bottom:6px;}
+.report-doc .doc-subtitle{text-align:center;font-size:0.9rem;color:#666;margin-bottom:20px;}
+.report-doc hr{border:none;border-top:2px solid #333;margin:16px 0;}
+.report-doc table{width:100%;border-collapse:collapse;margin-bottom:18px;}
+.report-doc table td{border:1px solid #ccc;padding:9px 12px;font-size:0.9rem;}
+.report-doc table td:first-child{background:#f7f7f7;font-weight:700;width:90px;text-align:center;}
+.report-doc .section-h{background:#FFE4EE;border-left:4px solid var(--primary);padding:7px 12px;font-weight:700;margin:16px 0 8px;border-radius:0 6px 6px 0;}
+.report-doc .section-body{border:1px solid #eee;border-radius:6px;padding:13px;margin-bottom:14px;min-height:60px;white-space:pre-wrap;font-size:0.9rem;line-height:1.8;}
+.report-doc .sign-row{display:flex;justify-content:flex-end;gap:12px;margin-top:28px;}
+.report-doc .sign-box{border:1px solid #ccc;border-radius:6px;width:110px;height:80px;display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:0.88rem;}
+.report-doc .sign-box span{font-size:0.78rem;color:#999;}
+/* SURVEY */
+.survey-item{background:#fff;border:1.5px solid var(--border);border-radius:10px;padding:16px;margin-bottom:12px;}
+.survey-item .si-meta{font-size:0.8rem;color:var(--text-light);margin-bottom:6px;}
+.star-select{display:flex;gap:6px;}.star-select button{background:none;border:2px solid var(--border);border-radius:6px;padding:6px 12px;font-size:1.1rem;transition:all 0.2s;font-family:inherit;}
+.star-select button.selected{border-color:var(--warning);background:#fff9e6;}
+.survey-result-bar{display:flex;align-items:center;gap:8px;margin:5px 0;}
+.survey-result-bar .bar-label{width:80px;font-size:0.82rem;text-align:right;}
+.survey-result-bar .bar-track{flex:1;height:16px;background:#FFE4EE;border-radius:8px;overflow:hidden;}
+.survey-result-bar .bar-fill{height:100%;background:var(--primary);border-radius:8px;transition:width 0.6s ease;}
+.survey-result-bar .bar-val{width:36px;font-size:0.82rem;font-weight:700;color:var(--primary-dark);}
+#toast{position:fixed;bottom:88px;left:50%;transform:translateX(-50%) translateY(18px);background:var(--primary-dark);color:#fff;padding:13px 26px;border-radius:28px;font-size:0.95rem;font-weight:600;box-shadow:0 4px 20px rgba(255,107,157,0.4);opacity:0;pointer-events:none;transition:opacity 0.3s,transform 0.3s;z-index:9999;text-align:center;max-width:88vw;}
+#toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+.site-footer{background:var(--primary-dark);color:rgba(255,255,255,0.8);text-align:center;padding:18px 16px;font-size:0.8rem;margin-top:28px;line-height:1.8;}
+.site-footer strong{color:#fff;}
+</style>
+</head>
+<body>
+<nav id="top-nav">
+  <div class="nav-inner">
+    <div class="logo">🤝 <span>이음</span> 통합돌봄</div>
+    <div class="nav-links">
+      <button class="active" onclick="goPage('home')">🏠 홈</button>
+      <button onclick="goPage('diagnosis')">🔍 자가진단</button>
+      <button onclick="goPage('chatbot')">💬 AI 챗봇</button>
+      <button onclick="goPage('auth')" id="nav-auth-btn">👤 로그인</button>
+      <button onclick="goPage('board')">📋 상담게시판</button>
+      <button onclick="goPage('admin')" id="nav-admin-btn" style="display:none;">🏢 기관 관리자</button>
+      <button onclick="goPage('report')" id="nav-report-btn" style="display:none;">📝 상담일지</button>
+    </div>
+    <div style="display:flex;gap:6px;align-items:center;margin-left:8px;">
+      <button class="nav-login-btn" onclick="goPage('auth')" id="nav-login-btn-top"><span id="top-login-label">로그인 / 가입</span></button>
+      <button class="nav-login-btn" id="nav-logout-btn" onclick="doLogout()" style="display:none;background:rgba(255,255,255,0.15);border-color:rgba(255,255,255,0.4);">🚪 로그아웃</button>
+    </div>
+  </div>
+</nav>
+<nav id="bottom-nav">
+  <div class="bnav-inner">
+    <button class="active" onclick="goPage('home')" data-page="home"><span class="bi">🏠</span>홈</button>
+    <button onclick="goPage('diagnosis')" data-page="diagnosis"><span class="bi">🔍</span>진단</button>
+    <button onclick="goPage('chatbot')" data-page="chatbot"><span class="bi">💬</span>챗봇</button>
+    <button onclick="goPage('auth')" data-page="auth" id="bnav-auth-btn"><span class="bi">👤</span>로그인</button>
+    <button onclick="goPage('board')" data-page="board"><span class="bi">📋</span>상담</button>
+    <button onclick="goPage('admin')" data-page="admin" id="bnav-admin-btn" style="display:none;"><span class="bi">🏢</span>기관</button>
+    <button onclick="goPage('report')" data-page="report" id="bnav-report-btn" style="display:none;"><span class="bi">📝</span>일지</button>
+  </div>
+</nav>
+
+<!-- HOME -->
+<div id="page-home" class="page active">
+  <div class="hero"><div class="container">
+    <h1>🤝 <span>이음</span> 통합돌봄 플랫폼</h1>
+    <p>주민·대상자·기관 담당자가 하나로 이어지는<br>스마트 통합돌봄 소통 플랫폼입니다</p>
+  </div></div>
+  <div class="container">
+    <div class="section-title">⭐ 주요 서비스</div>
+    <div class="cards-grid">
+      <div class="card" onclick="goPage('diagnosis')"><div class="card-icon">🔍</div><h3>대상자 자가진단</h3><p>내가 서비스 대상자인지 확인해보세요</p></div>
+      <div class="card" onclick="goPage('chatbot')"><div class="card-icon">💬</div><h3>AI 챗봇 상담</h3><p>궁금한 점을 AI가 바로 답변해드려요</p></div>
+      <div class="card" onclick="goPage('board')"><div class="card-icon">📋</div><h3>서비스 신청·상담</h3><p>상담게시판에서 담당자에게 문의하세요</p></div>
+      <div class="card" onclick="goPage('admin')"><div class="card-icon">🏥</div><h3>기관 안내</h3><p>참여 기관 정보와 담당자를 확인하세요</p></div>
+    </div>
+    <div class="section-title">🏢 참여 기관 바로가기</div>
+    <div class="quick-links">
+      <button class="quick-btn" onclick="goAdmin(0)">🏛 구청 노인장애과</button>
+      <button class="quick-btn" onclick="goAdmin(1)">🏛 사회복지과</button>
+      <button class="quick-btn" onclick="goAdmin(2)">🏥 보건소</button>
+      <button class="quick-btn" onclick="goAdmin(3)">🏘 1동 복지센터</button>
+      <button class="quick-btn" onclick="goAdmin(4)">🏘 2동 복지센터</button>
+      <button class="quick-btn" onclick="goAdmin(5)">🏘 3동 복지센터</button>
+      <button class="quick-btn" onclick="goAdmin(9)">🩺 병의원</button>
+      <button class="quick-btn" onclick="goAdmin(10)">🧠 치매안심센터</button>
+    </div>
+    <div class="box">
+      <div class="box-title">📢 공지사항</div>
+      <ul style="padding-left:16px;line-height:2.3;font-size:0.97rem;">
+        <li><a href="#" onclick="return false">2026년 의료·요양 통합돌봄 서비스 신청 접수 안내</a> <span style="font-size:0.8rem;color:var(--text-light);">2026-04-01</span></li>
+        <li><a href="#" onclick="return false">방문건강관리 및 AI·IoT 기반 어르신 건강관리 확대</a> <span style="font-size:0.8rem;color:var(--text-light);">2026-03-20</span></li>
+        <li><a href="#" onclick="return false">치매 조기 검진 무료 시행 (동구 거주자)</a> <span style="font-size:0.8rem;color:var(--text-light);">2026-03-10</span></li>
+        <li><a href="#" onclick="return false">이음 통합돌봄 플랫폼 오픈 안내</a> <span style="font-size:0.8rem;color:var(--text-light);">2026-03-01</span></li>
+      </ul>
+    </div>
+    <div style="background:linear-gradient(135deg,#fff8dc,#fff3cd);border:2px solid #ffc107;border-radius:14px;padding:18px 22px;margin:18px 0;text-align:center;">
+      <div style="font-size:1rem;font-weight:800;color:#856404;margin-bottom:10px;">🔑 샘플 체험 로그인 안내</div>
+      <div style="font-size:0.9rem;color:#5d4037;line-height:2;">
+        <strong>일반 사용자:</strong> 아이디 <code style="background:#fffde7;padding:2px 7px;border-radius:5px;">홍길동</code> / 비밀번호 <code style="background:#fffde7;padding:2px 7px;border-radius:5px;">1234</code><br>
+        <strong>관리자:</strong> 아이디 <code style="background:#fffde7;padding:2px 7px;border-radius:5px;">관리자</code> / 비밀번호 <code style="background:#fffde7;padding:2px 7px;border-radius:5px;">admin</code>
+        <span style="font-size:0.8rem;color:#888;display:block;margin-top:6px;">※ 관리자로 로그인하면 🏢 기관 관리자 · 📝 상담일지 탭이 활성화됩니다</span>
+      </div>
+    </div>
+  </div>
+  <footer class="site-footer"><strong>이음 통합돌봄 플랫폼</strong><br>울산광역시 동구청 노인장애과·사회복지과·동구보건소·동행정복지센터<br>대표전화: 052-209-3000 | care@donggu.go.kr</footer>
+</div>
+
+<!-- DIAGNOSIS -->
+<div id="page-diagnosis" class="page">
+  <div class="page-header"><div class="container">
+    <button class="back-btn" onclick="history.back()">← 이전으로</button>
+    <h2>🔍 대상자 자가진단</h2>
+    <p>예/아니오로 답변하여 통합돌봄 서비스 대상 여부를 확인하세요</p>
+  </div></div>
+  <div class="container"><div class="box">
+    <div id="diag-quiz-area">
+      <div class="diag-step-count" id="diag-count">1 / 8</div>
+      <div class="diag-progress"><div class="diag-progress-bar" id="diag-bar" style="width:12.5%"></div></div>
+      <div id="diag-current-render"></div>
+    </div>
+    <div id="diag-result-area" style="display:none;"></div>
+  </div></div>
+</div>
+
+<!-- AUTH -->
+<div id="page-auth" class="page">
+  <div class="page-header"><div class="container">
+    <button class="back-btn" onclick="history.back()">← 이전으로</button>
+    <h2 id="auth-header-title">👤 로그인 / 회원가입</h2>
+  </div></div>
+  <div class="container">
+    <div class="tabs-secondary" id="auth-tabs">
+      <button class="active" onclick="switchAuthTab('login')">🔑 로그인</button>
+      <button onclick="switchAuthTab('register')">📝 회원가입</button>
+      <button id="mypage-tab-btn" onclick="switchAuthTab('mypage')" style="display:none;">🏠 마이페이지</button>
+    </div>
+    <div id="auth-login" class="auth-pane">
+      <div class="box" style="max-width:460px;margin:0 auto;">
+        <div class="box-title">🔑 로그인</div>
+        <div class="form-group"><label>이름</label><input type="text" id="login-name" placeholder="이름을 입력하세요"></div>
+        <div class="form-group"><label>비밀번호</label><input type="password" id="login-pw" placeholder="비밀번호를 입력하세요"></div>
+        <button class="btn-primary" onclick="doLogin()">🔑 로그인</button>
+        <div class="alert-box alert-info" id="login-alert"></div>
+        <div style="text-align:center;margin-top:16px;font-size:0.88rem;color:var(--text-light);">아직 회원이 아니신가요? <a href="#" onclick="switchAuthTab('register');return false;">회원가입</a></div>
+        <div style="margin-top:18px;padding:13px;background:#FFF8FC;border-radius:8px;font-size:0.82rem;color:var(--text-light);line-height:1.8;">
+          <strong>⚡ 데모 로그인</strong><br>이름: <code>홍길동</code> / 비밀번호: <code>1234</code><br>이름: <code>관리자</code> / 비밀번호: <code>admin</code>
+        </div>
+      </div>
+    </div>
+    <div id="auth-register" class="auth-pane" style="display:none;">
+      <div class="box" style="max-width:540px;margin:0 auto;">
+        <div class="box-title">📝 회원가입</div>
+        <div class="form-group"><label>이름 *</label><input type="text" id="reg-name" placeholder="실명 입력"></div>
+        <div class="form-group"><label>주소 *</label>
+          <div class="form-row">
+            <select id="reg-sido" onchange="updateGungu()"><option value="">시/도 선택</option></select>
+            <select id="reg-gungu"><option value="">구/군 선택</option></select>
+          </div>
+        </div>
+        <div class="form-group"><label>생년월일 *</label><input type="date" id="reg-birth"></div>
+        <div class="form-group"><label>비밀번호 *</label><input type="password" id="reg-pw" placeholder="4자 이상"></div>
+        <div class="form-group"><label>회원 유형 *</label>
+          <div class="radio-group">
+            <label><input type="radio" name="reg-type" value="resident"> 일반 주민</label>
+            <label><input type="radio" name="reg-type" value="target"> 서비스 이용자</label>
+            <label><input type="radio" name="reg-type" value="staff"> 기관 담당자</label>
+          </div>
+        </div>
+        <button class="btn-primary" onclick="doRegister()">✅ 가입하기</button>
+        <div class="alert-box" id="reg-alert"></div>
+      </div>
+    </div>
+    <div id="auth-mypage" class="auth-pane" style="display:none;">
+      <div class="welcome-banner">
+        <h2>안녕하세요, <span id="mp-username">홍길동</span> 어르신! 👋</h2>
+        <p>오늘도 건강하게 지내세요! 오늘의 컨디션을 알려주세요 😊</p>
+      </div>
+      <div class="box">
+        <div class="box-title">⭐ 오늘의 컨디션</div>
+        <div class="condition-buttons">
+          <button class="condition-btn" onclick="selectCond(this,'⭐⭐⭐⭐⭐')">⭐⭐⭐⭐⭐<br><small>매우 좋음</small></button>
+          <button class="condition-btn" onclick="selectCond(this,'⭐⭐⭐⭐')">⭐⭐⭐⭐<br><small>좋음</small></button>
+          <button class="condition-btn" onclick="selectCond(this,'⭐⭐⭐')">⭐⭐⭐<br><small>보통</small></button>
+          <button class="condition-btn" onclick="selectCond(this,'⭐⭐')">⭐⭐<br><small>나쁨</small></button>
+          <button class="condition-btn" onclick="selectCond(this,'⭐')">⭐<br><small>매우 나쁨</small></button>
+        </div>
+        <div style="margin-top:14px;">
+          <label style="font-weight:700;display:block;margin-bottom:6px;color:#555;">📌 오늘의 요청사항</label>
+          <textarea id="mp-request" rows="3" placeholder="예: 오늘 무릎이 많이 아파요 / 약이 다 떨어졌어요"></textarea>
+        </div>
+        <button class="btn-success" style="margin-top:11px;width:100%;" onclick="sendToStaff()">📤 담당자에게 전달</button>
+        <div class="alert-box alert-success" id="mp-send-alert"></div>
+      </div>
+      <div class="box">
+        <div class="box-title">📅 최근 기록</div>
+        <div id="mp-records">
+          <div class="recent-record"><span class="record-date">2026-04-10</span><span>⭐⭐⭐</span><span>무릎 통증으로 병원 방문 요청</span></div>
+          <div class="recent-record"><span class="record-date">2026-04-08</span><span>⭐⭐⭐⭐</span><span>약 처방 받고 싶어요</span></div>
+        </div>
+      </div>
+      <div class="box">
+        <div class="box-title">🏥 담당 기관 안내</div>
+        <div class="contact-card"><strong>🏥 울산 동구 보건소</strong><span>📍 봉수로 155 | 📞 052-209-3000</span></div>
+        <div class="contact-card"><strong>🧠 울산 동구 치매안심센터</strong><span>📍 봉수로 155 (보건소 내) | 📞 052-209-3000</span></div>
+      </div>
+      <button class="btn-secondary" style="width:100%;margin-bottom:20px;" onclick="doLogout()">🚪 로그아웃</button>
+    </div>
+  </div>
+</div>
+<!-- CHATBOT -->
+<div id="page-chatbot" class="page">
+  <div class="page-header"><div class="container">
+    <button class="back-btn" onclick="history.back()">← 이전으로</button>
+    <h2>💬 AI 챗봇 상담</h2>
+    <p>2026년 의료·요양 통합돌봄 서비스에 대해 궁금한 점을 물어보세요</p>
+  </div></div>
+  <div class="container">
+    <div class="chatbot-wrap">
+      <div class="chat-header">🤖 이음 AI 상담봇 <span style="font-size:0.78rem;opacity:0.8;font-weight:400;margin-left:4px;">· 24시간 운영 | 2026 보건복지부 사업 안내</span></div>
+      <div class="chat-messages" id="chat-messages">
+        <div class="msg msg-bot">
+          <div class="msg-sender">🤖 이음 AI</div>
+          <div class="msg-bubble">안녕하세요! 👋 <strong>이음 통합돌봄 플랫폼</strong> AI 상담봇입니다.<br><br>2026년 의료·요양 통합돌봄 사업 내용을 바탕으로 안내해드립니다. 아래 버튼을 클릭하거나 직접 질문해보세요! 😊</div>
+        </div>
+      </div>
+      <div class="faq-buttons">
+        <button class="faq-btn" onclick="sendFaq('대상자 조건이 뭔가요?')">대상자 조건</button>
+        <button class="faq-btn" onclick="sendFaq('어디서 신청하나요?')">신청 방법</button>
+        <button class="faq-btn" onclick="sendFaq('어떤 서비스가 있나요?')">서비스 종류</button>
+        <button class="faq-btn" onclick="sendFaq('비용이 드나요?')">비용 안내</button>
+        <button class="faq-btn" onclick="sendFaq('신청 절차가 어떻게 되나요?')">신청 절차</button>
+        <button class="faq-btn" onclick="sendFaq('치매 관련 서비스가 있나요?')">치매 서비스</button>
+        <button class="faq-btn" onclick="sendFaq('방문진료 받을 수 있나요?')">방문진료</button>
+        <button class="faq-btn" onclick="sendFaq('장기요양 서비스가 궁금해요')">장기요양</button>
+        <button class="faq-btn" onclick="sendFaq('가까운 기관은 어디인가요?')">가까운 기관</button>
+      </div>
+      <div class="chat-input-row">
+        <input type="text" id="chat-input" placeholder="궁금한 점을 입력하세요..." onkeypress="if(event.key==='Enter')sendChat()">
+        <button class="chat-send-btn" onclick="sendChat()">전송 ➤</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- BOARD + SURVEY -->
+<div id="page-board" class="page">
+  <div class="page-header"><div class="container">
+    <button class="back-btn" onclick="history.back()">← 이전으로</button>
+    <h2>📋 상담게시판</h2>
+    <p>궁금한 점을 남겨주시면 담당자가 직접 답변해드립니다</p>
+  </div></div>
+  <div class="container">
+    <div class="tabs-secondary" id="board-main-tabs">
+      <button class="active" onclick="switchBoardTab('posts')">📋 게시판</button>
+      <button onclick="switchBoardTab('survey')">📊 설문조사</button>
+    </div>
+
+    <!-- 게시판 탭 -->
+    <div id="board-tab-posts">
+      <div class="box">
+        <div class="box-title" style="cursor:pointer;" onclick="toggleWriteForm()">✏️ 글 작성하기 <span id="write-toggle-icon" style="margin-left:auto;font-size:0.83rem;color:var(--text-light);">▼ 펼치기</span></div>
+        <div id="write-form" style="display:none;">
+          <div class="form-group"><label>제목 *</label><input type="text" id="post-title" placeholder="제목을 입력하세요"></div>
+          <div class="form-group"><label>카테고리</label>
+            <select id="post-cat"><option>서비스 문의</option><option>대상자 여부 확인</option><option>기관 연계</option><option>기타</option></select>
+          </div>
+          <div class="form-group"><label>내용 *</label><textarea id="post-content" rows="5" placeholder="문의 내용을 상세히 적어주세요..."></textarea></div>
+          <div class="form-group"><label style="display:flex;align-items:center;gap:9px;cursor:pointer;font-weight:600;"><input type="checkbox" id="post-secret" style="width:20px;height:20px;accent-color:var(--primary);"> 🔒 비밀글로 등록</label></div>
+          <button class="btn-primary" onclick="submitPost()">📤 등록하기</button>
+          <div class="alert-box" id="post-alert"></div>
+        </div>
+      </div>
+      <div class="box">
+        <div class="box-title">📌 게시판 목록</div>
+        <div style="overflow-x:auto;">
+          <table class="board-table"><thead><tr><th style="width:38px;">번호</th><th>제목</th><th style="width:95px;">카테고리</th><th style="width:85px;">작성일</th><th style="width:78px;">상태</th></tr></thead>
+          <tbody id="board-tbody"></tbody></table>
+        </div>
+      </div>
+    </div>
+
+    <!-- 설문조사 탭 -->
+    <div id="board-tab-survey" style="display:none;">
+      <div class="box">
+        <div class="box-title">📊 서비스 만족도 설문조사</div>
+        <div style="background:#FFF8FC;border-radius:8px;padding:14px;margin-bottom:16px;font-size:0.9rem;line-height:1.7;">
+          📢 이음 통합돌봄 서비스를 이용하신 분들의 소중한 의견을 기다립니다.<br>
+          수집된 의견은 서비스 개선에 바로 반영됩니다.
+        </div>
+        <div id="survey-form-area">
+          <div class="form-row">
+            <div class="form-group"><label>이름 *</label><input type="text" id="sv-name" placeholder="이름 입력 (로그인 시 자동 입력)"></div>
+            <div class="form-group"><label>나이 *</label><input type="number" id="sv-age" placeholder="나이" min="1" max="120"></div>
+          </div>
+          <div class="form-row">
+            <div class="form-group"><label>사는 구 *</label>
+              <select id="sv-gu">
+                <option value="">선택해주세요</option>
+                <option>중구</option><option>남구</option><option>동구</option><option>북구</option><option>울주군</option>
+                <option>기타 지역</option>
+              </select>
+            </div>
+            <div class="form-group"><label>이용 기관 *</label>
+              <select id="sv-inst">
+                <option value="">선택해주세요</option>
+                <option>구청 노인장애과</option><option>구청 사회복지과</option><option>보건소</option>
+                <option>행정복지센터</option><option>건강보험공단</option><option>치매안심센터</option><option>기타</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-group">
+            <label>서비스 전반적 만족도 *</label>
+            <div class="star-select" id="sv-satis">
+              <button type="button" onclick="selectStar('sv-satis',1)">⭐ 매우 불만</button>
+              <button type="button" onclick="selectStar('sv-satis',2)">⭐⭐ 불만</button>
+              <button type="button" onclick="selectStar('sv-satis',3)">⭐⭐⭐ 보통</button>
+              <button type="button" onclick="selectStar('sv-satis',4)">⭐⭐⭐⭐ 만족</button>
+              <button type="button" onclick="selectStar('sv-satis',5)">⭐⭐⭐⭐⭐ 매우 만족</button>
+            </div>
+          </div>
+          <div class="form-group">
+            <label>직원 친절도 *</label>
+            <div class="star-select" id="sv-kind">
+              <button type="button" onclick="selectStar('sv-kind',1)">⭐ 매우 불친절</button>
+              <button type="button" onclick="selectStar('sv-kind',2)">⭐⭐ 불친절</button>
+              <button type="button" onclick="selectStar('sv-kind',3)">⭐⭐⭐ 보통</button>
+              <button type="button" onclick="selectStar('sv-kind',4)">⭐⭐⭐⭐ 친절</button>
+              <button type="button" onclick="selectStar('sv-kind',5)">⭐⭐⭐⭐⭐ 매우 친절</button>
+            </div>
+          </div>
+          <div class="form-group">
+            <label>서비스를 주변에 추천하시겠습니까?</label>
+            <div class="radio-group">
+              <label><input type="radio" name="sv-recommend" value="yes"> ✅ 예, 추천하겠습니다</label>
+              <label><input type="radio" name="sv-recommend" value="no"> ❌ 아니오</label>
+            </div>
+          </div>
+          <div class="form-group"><label>개선 의견 및 건의사항</label>
+            <textarea id="sv-opinion" rows="4" placeholder="서비스 개선을 위한 의견을 자유롭게 적어주세요..."></textarea>
+          </div>
+          <button class="btn-primary" onclick="submitSurvey()">📤 설문 제출하기</button>
+          <div class="alert-box" id="survey-alert"></div>
+        </div>
+      </div>
+
+      <!-- 설문 결과 -->
+      <div class="box" id="survey-results-box">
+        <div class="box-title" style="justify-content:space-between;">
+          📈 설문 결과 현황
+          <button onclick="exportSurveyExcel()" style="background:#1d6f42;color:#fff;border-radius:8px;padding:7px 14px;font-size:0.83rem;font-weight:700;">📊 엑셀 저장</button>
+        </div>
+        <div id="survey-results-content"></div>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- ADMIN -->
+<div id="page-admin" class="page">
+  <div class="page-header"><div class="container">
+    <button class="back-btn" onclick="history.back()">← 이전으로</button>
+    <h2>🏢 기관 관리자 페이지</h2>
+    <p>담당 대상자 관리 · 기관 연계 · 상담 답변 · 설문 결과 확인</p>
+  </div></div>
+  <div id="admin-lock" style="display:none;text-align:center;padding:60px 20px;">
+    <div style="font-size:3rem;margin-bottom:16px;">🔒</div>
+    <div style="font-size:1.2rem;font-weight:700;color:var(--primary-dark);margin-bottom:8px;">관리자 전용 페이지입니다</div>
+    <div style="font-size:0.9rem;color:var(--text-light);margin-bottom:20px;">관리자 계정으로 로그인해야 이용할 수 있습니다</div>
+    <button class="btn-primary" onclick="goPage('auth')" style="margin:0 auto;">🔑 로그인하러 가기</button>
+    <div style="margin-top:14px;font-size:0.82rem;color:#999;">체험 계정: 아이디 <code>관리자</code> / 비밀번호 <code>admin</code></div>
+  </div>
+  <div class="container">
+    <div class="inst-tabs-wrap" id="inst-tabs-wrap">
+      <div class="inst-tabs" id="inst-tabs">
+        <button class="inst-tab-btn active" onclick="switchInst(0,this)">🏛 노인장애과</button>
+        <button class="inst-tab-btn" onclick="switchInst(1,this)">🏛 사회복지과</button>
+        <button class="inst-tab-btn" onclick="switchInst(2,this)">🏥 보건소</button>
+        <button class="inst-tab-btn" onclick="switchInst(3,this)">🏘 1동</button>
+        <button class="inst-tab-btn" onclick="switchInst(4,this)">🏘 2동</button>
+        <button class="inst-tab-btn" onclick="switchInst(5,this)">🏘 3동</button>
+        <button class="inst-tab-btn" onclick="switchInst(6,this)">🏘 4동</button>
+        <button class="inst-tab-btn" onclick="switchInst(7,this)">🏘 5동</button>
+        <button class="inst-tab-btn" onclick="switchInst(8,this)">💊 건강보험</button>
+        <button class="inst-tab-btn" onclick="switchInst(9,this)">🩺 병의원</button>
+        <button class="inst-tab-btn" onclick="switchInst(10,this)">🧠 치매센터</button>
+      </div>
+    </div>
+    <div id="inst-contents"></div>
+  </div>
+</div>
+
+<!-- PATIENT MODAL -->
+<div class="modal-overlay" id="patient-modal">
+  <div class="modal-box">
+    <div class="modal-header">
+      <h3 id="patient-modal-title">➕ 신규 대상자 등록</h3>
+      <button class="modal-close" onclick="closePatientModal()">✕</button>
+    </div>
+    <div class="form-group"><label>이름 *</label><input type="text" id="pm-name" placeholder="이름"></div>
+    <div class="form-row">
+      <div class="form-group"><label>생년월일 *</label><input type="date" id="pm-birth"></div>
+      <div class="form-group"><label>성별 *</label><select id="pm-gender"><option value="">선택</option><option>남성</option><option>여성</option></select></div>
+    </div>
+    <div class="form-group"><label>주소</label><input type="text" id="pm-addr" placeholder="예: 울산 동구 방어동"></div>
+    <div class="form-group"><label>연락처</label><input type="tel" id="pm-tel" placeholder="010-0000-0000"></div>
+    <div class="form-group"><label>대상자 유형 *</label>
+      <div class="radio-group">
+        <label><input type="radio" name="pm-type" value="노인"> 노인</label>
+        <label><input type="radio" name="pm-type" value="장애인"> 장애인</label>
+        <label><input type="radio" name="pm-type" value="기타"> 기타</label>
+      </div>
+    </div>
+    <div class="form-group"><label>건강상태</label><textarea id="pm-health" rows="2" placeholder="현재 건강 상태"></textarea></div>
+    <div class="form-group"><label>필요 서비스</label>
+      <div class="checkbox-group">
+        <label><input type="checkbox" class="pm-svc" value="방문요양"> 방문요양</label>
+        <label><input type="checkbox" class="pm-svc" value="방문간호"> 방문간호</label>
+        <label><input type="checkbox" class="pm-svc" value="식사배달"> 식사배달</label>
+        <label><input type="checkbox" class="pm-svc" value="주간보호"> 주간보호</label>
+        <label><input type="checkbox" class="pm-svc" value="건강관리"> 건강관리</label>
+        <label><input type="checkbox" class="pm-svc" value="기타서비스"> 기타</label>
+      </div>
+    </div>
+    <div class="form-group"><label>담당 기관</label><select id="pm-inst"></select></div>
+    <div class="form-group"><label>특이사항</label><textarea id="pm-memo" rows="2" placeholder="특이사항을 입력하세요"></textarea></div>
+    <div style="display:flex;gap:10px;margin-top:6px;">
+      <button class="btn-primary" style="margin-top:0;" onclick="savePatient()">💾 저장</button>
+      <button class="btn-secondary" onclick="closePatientModal()">취소</button>
+    </div>
+  </div>
+</div>
+
+<!-- PATIENT DETAIL MODAL -->
+<div class="modal-overlay" id="patient-detail-modal">
+  <div class="modal-box">
+    <div class="modal-header">
+      <h3 id="pd-name-title">대상자 상세 정보</h3>
+      <button class="modal-close" onclick="closeDetailModal()">✕</button>
+    </div>
+    <div id="pd-body"></div>
+    <div style="margin-top:14px;">
+      <label style="font-weight:700;font-size:0.9rem;display:block;margin-bottom:8px;">📋 상태 변경</label>
+      <div class="status-flow" id="pd-status-flow"></div>
+    </div>
+    <div style="display:flex;gap:10px;margin-top:18px;">
+      <button class="btn-primary" style="margin-top:0;" onclick="updatePatientStatus()">✅ 상태 저장</button>
+      <button class="btn-secondary" onclick="closeDetailModal()">닫기</button>
+    </div>
+  </div>
+</div>
+
+<!-- REPORT PAGE -->
+<div id="page-report" class="page">
+  <div class="page-header"><div class="container">
+    <button class="back-btn" onclick="history.back()">← 이전으로</button>
+    <h2>📝 상담일지 &amp; 활동보고서</h2>
+    <p>기관별 대상자 자동 불러오기 · PDF 저장 · 엑셀 저장(3시트)</p>
+  </div></div>
+  <div id="report-lock" style="display:none;text-align:center;padding:60px 20px;">
+    <div style="font-size:3rem;margin-bottom:16px;">🔒</div>
+    <div style="font-size:1.2rem;font-weight:700;color:var(--primary-dark);margin-bottom:8px;">관리자 전용 페이지입니다</div>
+    <div style="font-size:0.9rem;color:var(--text-light);margin-bottom:20px;">관리자 계정으로 로그인해야 이용할 수 있습니다</div>
+    <button class="btn-primary" onclick="goPage('auth')" style="margin:0 auto;">🔑 로그인하러 가기</button>
+    <div style="margin-top:14px;font-size:0.82rem;color:#999;">체험 계정: 아이디 <code>관리자</code> / 비밀번호 <code>admin</code></div>
+  </div>
+  <div class="container" id="report-form-body">
+    <div class="box">
+      <div class="box-title">📋 상담 내용 입력</div>
+
+      <div class="form-group">
+        <label>📌 발신 기관명 <span style="font-size:0.8rem;color:var(--text-light);font-weight:400;">(PDF 문서 상단에 표시 — 수정 가능)</span></label>
+        <input type="text" id="rp-sender-inst" value="울산광역시 동구청">
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label>담당 부서 / 기관 *</label>
+          <select id="rp-inst" onchange="rpInstChange()">
+            <option value="">기관 선택</option>
+            <option>구청 노인장애과</option><option>구청 사회복지과</option><option>보건소</option>
+            <option>동행정복지센터 1동</option><option>동행정복지센터 2동</option><option>동행정복지센터 3동</option>
+            <option>동행정복지센터 4동</option><option>동행정복지센터 5동</option>
+            <option>건강보험공단</option><option>병의원</option><option>치매안심센터</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>담당자 이름 *</label>
+          <input type="text" id="rp-officer" placeholder="담당자 이름 (로그인 시 자동 입력)">
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>✅ 대상자 선택 <span style="font-size:0.8rem;color:var(--text-light);font-weight:400;">(클릭하여 선택, 다중 선택 가능)</span></label>
+        <div class="client-panel" id="rp-client-panel">
+          <span style="color:var(--text-light);font-size:0.88rem;">← 기관을 먼저 선택해주세요</span>
+        </div>
+        <div style="display:flex;gap:8px;margin-top:8px;">
+          <button onclick="selectAllClients()" style="background:#FFF0F5;color:var(--primary-dark);border:2px solid var(--primary-light);border-radius:8px;padding:6px 14px;font-size:0.83rem;font-weight:700;">모두 선택</button>
+          <button onclick="deselectAllClients()" style="background:#f5f5f5;color:#666;border:2px solid #ddd;border-radius:8px;padding:6px 14px;font-size:0.83rem;font-weight:700;">선택 해제</button>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>대상자 이름 *</label>
+        <input type="text" id="rp-names" placeholder="예: 홍복남, 김태호 (자동 입력됨)">
+      </div>
+
+      <div class="form-group">
+        <label>상담 기간 (날짜)</label>
+        <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+          <input type="date" id="rp-date-from" style="width:auto;flex:1;min-width:140px;">
+          <span>~</span>
+          <input type="date" id="rp-date-to" style="width:auto;flex:1;min-width:140px;">
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>상담 방법 * <span style="font-size:0.8rem;color:var(--text-light);font-weight:400;">(복수 선택 가능)</span></label>
+        <div class="method-btn-group" id="rp-methods">
+          <button type="button" class="method-btn" onclick="toggleMethod(this)">🏠 방문</button>
+          <button type="button" class="method-btn" onclick="toggleMethod(this)">📞 전화</button>
+          <button type="button" class="method-btn" onclick="toggleMethod(this)">🚶 내방</button>
+          <button type="button" class="method-btn" onclick="toggleMethod(this)">🔗 연계</button>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>상담 내용 <span style="font-size:0.8rem;color:var(--text-light);font-weight:400;">(대상자 선택 시 자동 작성)</span></label>
+        <textarea id="rp-content" rows="5" placeholder="기관 및 대상자 선택 시 자동으로 내용이 작성됩니다..."></textarea>
+      </div>
+
+      <div class="form-group">
+        <label>연계 기관 및 내용</label>
+        <textarea id="rp-link" rows="2" placeholder="예: 【연계 기관】 보건소 치매안심센터 / 【연계 내용】 치매 조기검진"></textarea>
+      </div>
+
+      <div class="form-group">
+        <label>특이사항 및 추후 조치 계획</label>
+        <textarea id="rp-special" rows="3" placeholder="특이사항 및 추후 조치 계획을 입력하세요"></textarea>
+      </div>
+
+      <button class="btn-primary" onclick="generateReport()">📄 보고서 미리보기 생성</button>
+    </div>
+
+    <!-- PREVIEW SECTION -->
+    <div class="box" id="report-preview-box" style="display:none;">
+      <div class="box-title" style="justify-content:space-between;flex-wrap:wrap;gap:8px;">
+        📄 보고서 미리보기
+        <div style="display:flex;gap:8px;flex-wrap:wrap;">
+          <button onclick="savePDF()" style="background:var(--primary-dark);color:#fff;font-weight:700;padding:8px 16px;border-radius:8px;font-size:0.88rem;">🖨️ PDF 저장</button>
+          <button onclick="saveExcel()" style="background:#1d6f42;color:#fff;font-weight:700;padding:8px 16px;border-radius:8px;font-size:0.88rem;">📊 엑셀 저장 (3시트)</button>
+          <button onclick="document.getElementById('report-preview-box').style.display='none'" style="background:#f5f5f5;color:#666;font-weight:700;padding:8px 16px;border-radius:8px;font-size:0.88rem;">✕ 닫기</button>
+        </div>
+      </div>
+      <div id="report-doc-content"></div>
+    </div>
+  </div>
+</div>
+
+<div id="toast"></div>
+<script>
+// ═══ STATE ═══
+let isLoggedIn=false,loggedUser=null,selectedCond='';
+let editingPatientIdx=-1,selectedStatus='';
+let selectedClientNames=new Set();
+let surveyRatings={};
+let surveys=[
+  {name:'김영희',age:72,gu:'동구',inst:'보건소',satis:5,kind:5,recommend:'yes',opinion:'담당자분이 매우 친절하셨습니다',date:'2026-04-10'},
+  {name:'이철수',age:68,gu:'동구',inst:'구청 노인장애과',satis:4,kind:5,recommend:'yes',opinion:'서비스 연락이 조금 늦은 편입니다',date:'2026-04-11'},
+  {name:'박말순',age:81,gu:'남구',inst:'치매안심센터',satis:5,kind:4,recommend:'yes',opinion:'치매검진 서비스가 정말 도움이 됐어요',date:'2026-04-12'}
+];
+
+const instNames=['구청 노인장애과','구청 사회복지과','보건소','동행정복지센터 1동','동행정복지센터 2동','동행정복지센터 3동','동행정복지센터 4동','동행정복지센터 5동','건강보험공단','병의원','치매안심센터'];
+const sampleSubjects=[
+  {name:'김말순',age:78,stars:'⭐⭐',req:'무릎 통증 심해요',officer:'박동구 주무관'},
+  {name:'이복동',age:82,stars:'⭐⭐⭐',req:'약 처방 받고 싶어요',officer:'김남구 주무관'},
+  {name:'박순자',age:75,stars:'⭐⭐⭐⭐',req:'방문 목욕 요청합니다',officer:'이중구 주무관'}
+];
+let receivedLinks=[
+  {from:'보건소',to:'치매안심센터',person:'김말순',msg:'치매 조기검진 연계 요청',date:'2026-04-10'},
+  {from:'동행정복지센터 2동',to:'보건소',person:'이복동',msg:'방문간호 서비스 연계 요청',date:'2026-04-09'}
+];
+let patients=[
+  {name:'홍복남',birth:'1948-03-12',gender:'여성',addr:'울산 동구 방어동',tel:'052-111-2222',type:'노인',health:'고혈압, 당뇨',services:['방문요양','건강관리'],inst:'보건소',memo:'보호자 없음',status:'서비스중',regDate:'2026-03-15'},
+  {name:'김태호',birth:'1955-07-22',gender:'남성',addr:'울산 동구 전하동',tel:'052-333-4444',type:'노인',health:'치매 초기',services:['방문간호'],inst:'치매안심센터',memo:'',status:'방문확인',regDate:'2026-04-01'},
+  {name:'이순자',birth:'1960-11-05',gender:'여성',addr:'울산 동구 화정동',tel:'052-555-6666',type:'장애인',health:'지체장애 2급',services:['식사배달','주간보호'],inst:'보건소',memo:'',status:'신청',regDate:'2026-04-10'}
+];
+
+// ═══ NAVIGATION ═══
+const pageIds=['home','diagnosis','chatbot','auth','board','admin','report'];
+function goPage(id){if(window.location.hash!=='#'+id)history.pushState({page:id},'','#'+id);showPage(id);}
+function showPage(id){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  const el=document.getElementById('page-'+id);if(el)el.classList.add('active');
+  document.querySelectorAll('#top-nav .nav-links button').forEach(b=>{b.classList.toggle('active',b.getAttribute('onclick')&&b.getAttribute('onclick').includes("'"+id+"'"));});
+  document.querySelectorAll('#bottom-nav button').forEach(b=>{b.classList.toggle('active',b.dataset.page===id);});
+  if(id==='auth'&&isLoggedIn)switchAuthTab('mypage');
+  if(id==='report'&&isLoggedIn){const f=document.getElementById('rp-officer');if(f&&!f.value)f.value=loggedUser;}
+  // Admin-only page protection
+  const isAdmin=(loggedUser==='관리자');
+  if(id==='admin'){
+    const lock=document.getElementById('admin-lock');
+    const wrap=document.getElementById('inst-tabs-wrap');
+    const cont=document.getElementById('inst-contents');
+    if(lock)lock.style.display=isAdmin?'none':'block';
+    if(wrap)wrap.style.display=isAdmin?'':'none';
+    if(cont)cont.style.display=isAdmin?'':'none';
+  }
+  if(id==='report'){
+    const lock=document.getElementById('report-lock');
+    const body=document.getElementById('report-form-body');
+    if(lock)lock.style.display=isAdmin?'none':'block';
+    if(body)body.style.display=isAdmin?'':'none';
+  }
+  window.scrollTo(0,0);
+}
+window.addEventListener('popstate',(e)=>{const page=e.state&&e.state.page?e.state.page:'home';showPage(page);});
+window.addEventListener('hashchange',()=>{const hash=window.location.hash.replace('#','');if(pageIds.includes(hash))showPage(hash);});
+function goAdmin(idx){goPage('admin');setTimeout(()=>{const btns=document.querySelectorAll('.inst-tab-btn');if(btns[idx])switchInst(idx,btns[idx]);},60);}
+
+// ═══ DIAGNOSIS ═══
+const diagSteps=[
+  {cat:'[노인 대상]',q:'노쇠·장애·질병 등으로 일상생활 유지에 어려움이 있으신가요?'},
+  {cat:'[노인 대상]',q:'장기요양 재가급여(1~5등급)를 받고 계신가요?'},
+  {cat:'[노인 대상]',q:'최근 퇴원하셨거나 의료기관 이용이 잦으신가요?'},
+  {cat:'[장애인 대상]',q:'의료·요양 등 복합적인 지원이 필요하신가요?'},
+  {cat:'[장애인 대상]',q:'현재 65세 이상이신가요?'},
+  {cat:'[장애인 대상]',q:'65세 미만이시더라도 의료·돌봄 필요도가 높은 상황이신가요?'},
+  {cat:'[기타]',q:'지자체(구청, 주민센터 등)에서 돌봄 필요성을 인정받으신 적 있나요?'},
+  {cat:'[기타]',q:'지역 조례에 따른 돌봄 대상에 해당하신다고 생각하시나요?'}
+];
+let diagAnswers=[],diagCurrent=0;
+function initDiag(){diagAnswers=[];diagCurrent=0;document.getElementById('diag-quiz-area').style.display='';document.getElementById('diag-result-area').style.display='none';renderDiagStep();}
+function renderDiagStep(){
+  const total=diagSteps.length,step=diagSteps[diagCurrent];
+  document.getElementById('diag-count').textContent=(diagCurrent+1)+' / '+total;
+  document.getElementById('diag-bar').style.width=((diagCurrent+1)/total*100)+'%';
+  document.getElementById('diag-current-render').innerHTML=`<div class="diag-category">${step.cat}</div><div class="diag-question">${step.q}</div><div class="diag-yn-row"><button class="diag-yn-btn yes" onclick="answerDiag(true)">✅ 예</button><button class="diag-yn-btn no" onclick="answerDiag(false)">❌ 아니오</button></div>`;
+}
+function answerDiag(yn){diagAnswers.push({q:diagSteps[diagCurrent].q,cat:diagSteps[diagCurrent].cat,ans:yn});diagCurrent++;if(diagCurrent>=diagSteps.length)showDiagResult();else renderDiagStep();}
+function showDiagResult(){
+  const yesCount=diagAnswers.filter(a=>a.ans).length,isPos=yesCount>=3;
+  document.getElementById('diag-quiz-area').style.display='none';
+  const ra=document.getElementById('diag-result-area');ra.style.display='';
+  let listHtml=diagAnswers.map(a=>`<div class="diag-answer-item"><span class="ans-badge ${a.ans?'ans-yes':'ans-no'}">${a.ans?'예':'아니오'}</span><span>${a.q}</span></div>`).join('');
+  ra.innerHTML=`<div class="diag-result-box ${isPos?'diag-result-pos':'diag-result-neg'}"><div style="font-size:1.5rem;margin-bottom:10px;">${isPos?'💗':'💚'}</div><div style="font-size:1.1rem;font-weight:800;margin-bottom:10px;color:${isPos?'var(--primary-dark)':'#1e8449'};">${isPos?'통합돌봄 서비스 대상자에 해당될 가능성이 높습니다!':'현재는 해당되지 않을 수 있습니다.'}</div><div style="font-size:0.97rem;line-height:1.7;color:#444;">${isPos?'"예" 답변 <strong>'+yesCount+'개</strong> — 가까운 기관에 문의하여 정확한 대상자 여부를 확인하세요.':'"아니오" 답변이 많습니다. 궁금한 점은 상담게시판에 문의하실 수 있습니다.'}</div><div class="diag-answer-list" style="margin-top:18px;">${listHtml}</div><div style="display:flex;gap:10px;margin-top:18px;flex-wrap:wrap;">${isPos?'<button class="btn-primary" style="margin-top:0;flex:1;" onclick="goPage(\'auth\')">📝 지금 바로 가입하기</button>':''}<button class="btn-secondary" style="flex:1;" onclick="goPage(\'board\')">📋 상담게시판</button><button class="btn-secondary" style="flex:1;" onclick="initDiag()">🔄 다시 진단</button></div></div>`;
+}
+
+// ═══ ADDRESS ═══
+const addressData={'서울특별시':['종로구','중구','용산구','성동구','광진구','동대문구','중랑구','성북구','강북구','도봉구','노원구','은평구','서대문구','마포구','양천구','강서구','구로구','금천구','영등포구','동작구','관악구','서초구','강남구','송파구','강동구'],'울산광역시':['중구','남구','동구','북구','울주군'],'부산광역시':['중구','서구','동구','영도구','부산진구','동래구','남구','북구','해운대구','사하구','금정구','강서구','연제구','수영구','사상구','기장군'],'경기도':['수원시','성남시','의정부시','안양시','부천시','광명시','평택시','안산시','고양시','용인시','파주시','이천시','김포시','화성시','광주시','양주시'],'기타':['기타 지역']};
+function populateSido(){
+  const sel=document.getElementById('reg-sido');
+  Object.keys(addressData).forEach(s=>{const o=document.createElement('option');o.value=s;o.textContent=s;sel.appendChild(o);});
+  const pmSel=document.getElementById('pm-inst');
+  instNames.forEach(n=>{const o=document.createElement('option');o.value=n;o.textContent=n;pmSel.appendChild(o);});
+}
+function updateGungu(){const sido=document.getElementById('reg-sido').value,sel=document.getElementById('reg-gungu');sel.innerHTML='<option value="">구/군 선택</option>';if(sido&&addressData[sido])addressData[sido].forEach(g=>{const o=document.createElement('option');o.value=g;o.textContent=g;sel.appendChild(o);});}
+
+// ═══ AUTH ═══
+function switchAuthTab(tab){
+  document.querySelectorAll('.auth-pane').forEach(p=>p.style.display='none');
+  document.querySelectorAll('#auth-tabs button').forEach(b=>b.classList.remove('active'));
+  document.getElementById('auth-'+tab).style.display='block';
+  const idx={login:0,register:1,mypage:2}[tab];
+  const btns=document.querySelectorAll('#auth-tabs button');
+  if(btns[idx])btns[idx].classList.add('active');
+}
+function doLogin(){
+  const name=document.getElementById('login-name').value.trim(),pw=document.getElementById('login-pw').value.trim(),al=document.getElementById('login-alert');
+  if(!name||!pw){showAlertEl(al,'이름과 비밀번호를 입력해주세요.','info');return;}
+  if((name==='홍길동'&&pw==='1234')||(name==='관리자'&&pw==='admin')){
+    isLoggedIn=true;loggedUser=name;
+    const isAdmin=(name==='관리자');
+    document.getElementById('mp-username').textContent=name;
+    document.getElementById('mypage-tab-btn').style.display='';
+    document.getElementById('top-login-label').textContent=name+' 님';
+    document.getElementById('nav-auth-btn').textContent='👤 '+name;
+    // Show/hide admin-only nav tabs
+    document.getElementById('nav-admin-btn').style.display=isAdmin?'':'none';
+    document.getElementById('nav-report-btn').style.display=isAdmin?'':'none';
+    document.getElementById('bnav-admin-btn').style.display=isAdmin?'':'none';
+    document.getElementById('bnav-report-btn').style.display=isAdmin?'':'none';
+    // Show logout button in top nav
+    document.getElementById('nav-logout-btn').style.display='inline-block';
+    document.getElementById('nav-login-btn-top').style.display='none';
+    // Change bottom nav auth button to direct logout
+    const bnavBtn=document.getElementById('bnav-auth-btn');
+    bnavBtn.innerHTML='<span class="bi">🚪</span>로그아웃';
+    bnavBtn.onclick=doLogout;
+    bnavBtn.dataset.page='';
+    // Auto-fill fields
+    const rpOfficer=document.getElementById('rp-officer');if(rpOfficer)rpOfficer.value=name;
+    const svName=document.getElementById('sv-name');if(svName)svName.value=name;
+    showToast('✅ '+name+' 님, 로그인되었습니다!'+(isAdmin?' (관리자)':''));
+    switchAuthTab('mypage');
+    if(isAdmin)setTimeout(()=>goPage('admin'),500);
+  }else{showAlertEl(al,'아이디 또는 비밀번호가 올바르지 않습니다.','info');}
+}
+function doLogout(){
+  isLoggedIn=false;loggedUser=null;
+  document.getElementById('mypage-tab-btn').style.display='none';
+  document.getElementById('top-login-label').textContent='로그인 / 가입';
+  document.getElementById('nav-auth-btn').textContent='👤 로그인';
+  // Hide admin-only tabs
+  document.getElementById('nav-admin-btn').style.display='none';
+  document.getElementById('nav-report-btn').style.display='none';
+  document.getElementById('bnav-admin-btn').style.display='none';
+  document.getElementById('bnav-report-btn').style.display='none';
+  // Restore login button in top nav
+  document.getElementById('nav-logout-btn').style.display='none';
+  document.getElementById('nav-login-btn-top').style.display='';
+  // Restore bottom nav auth button
+  const bnavBtn=document.getElementById('bnav-auth-btn');
+  bnavBtn.innerHTML='<span class="bi">👤</span>로그인';
+  bnavBtn.onclick=()=>goPage('auth');
+  bnavBtn.dataset.page='auth';
+  // Clear login form
+  document.getElementById('login-name').value='';
+  document.getElementById('login-pw').value='';
+  document.getElementById('login-alert').style.display='none';
+  showToast('로그아웃되었습니다.');
+  switchAuthTab('login');
+  goPage('home');
+}
+function doRegister(){
+  const name=document.getElementById('reg-name').value.trim(),sido=document.getElementById('reg-sido').value,gungu=document.getElementById('reg-gungu').value,birth=document.getElementById('reg-birth').value,pw=document.getElementById('reg-pw').value.trim(),type=document.querySelector('input[name="reg-type"]:checked'),al=document.getElementById('reg-alert');
+  if(!name||!sido||!gungu||!birth||!pw||!type){showAlertEl(al,'⚠️ 모든 항목을 입력해주세요.','warn');return;}
+  if(pw.length<4){showAlertEl(al,'비밀번호는 4자 이상이어야 합니다.','warn');return;}
+  showAlertEl(al,'✅ 가입이 완료되었습니다. 로그인 후 이용해주세요.','success');
+  showToast('🎉 가입 완료! 로그인 탭에서 로그인하세요.');
+  setTimeout(()=>switchAuthTab('login'),2000);
+}
+function selectCond(btn,stars){document.querySelectorAll('.condition-btn').forEach(b=>b.classList.remove('selected'));btn.classList.add('selected');selectedCond=stars;}
+function sendToStaff(){
+  const req=document.getElementById('mp-request').value.trim(),al=document.getElementById('mp-send-alert');
+  if(!req){showAlertEl(al,'요청사항을 입력해주세요.','warn');return;}
+  showAlertEl(al,'📤 담당자에게 전달되었습니다.','success');
+  const today=new Date().toISOString().slice(0,10),stars=selectedCond||'⭐⭐⭐',rec=document.getElementById('mp-records');
+  const row=document.createElement('div');row.className='recent-record';row.innerHTML=`<span class="record-date">${today}</span><span>${stars}</span><span>${req}</span>`;
+  rec.insertBefore(row,rec.firstChild);document.getElementById('mp-request').value='';showToast('✅ 담당자에게 전달되었습니다!');
+}
+
+// ═══ CHATBOT (enhanced from 2026 의료·요양 통합돌봄 사업 안내) ═══
+const faqDB={
+  '대상자':{kw:['대상자','조건','기준','해당','나이','연령','노인','장애','누가'],answer:`📋 <strong>2026년 통합돌봄 서비스 대상자 조건</strong><br><br>👴 <strong>노인 대상</strong><br>① 65세 이상 어르신으로 일상생활 유지가 어려운 분<br>② 장기요양등급(1~5등급, 인지지원등급) 인정자<br>③ 치매·중증질환 등으로 의료·요양 복합 지원이 필요한 분<br>④ 최근 입원·퇴원으로 집중 돌봄이 필요한 분<br><br>♿ <strong>장애인 대상</strong><br>① 의료·요양 복합적 지원이 필요한 등록 장애인<br>② 65세 미만이어도 의료·돌봄 필요도가 높은 분<br>③ 지자체 조례에 따른 돌봄 대상자<br><br>✅ 정확한 대상 여부는 <strong>자가진단 페이지</strong>에서 확인하거나 읍면동 행정복지센터에 문의하세요!`},
+  '신청':{kw:['신청','어디서','방법','접수','어떻게','어떻게해','신청하'],answer:`📍 <strong>신청 방법 (2가지)</strong><br><br>① <strong>읍·면·동 행정복지센터 방문 또는 전화 신청</strong><br>　→ 주소지 관할 센터로 연락<br>　→ 필요 서류: 신분증, 건강보험증<br><br>② <strong>온라인 신청</strong><br>　→ 복지로 www.bokjiro.go.kr<br>　→ 건강보험공단 ☎ 1577-1000 (장기요양 신청)<br><br>📌 신청 후 절차: 사전조사 → 종합판정조사 → 개별지원계획 수립 → 서비스 제공<br><br>⏰ 접수부터 서비스 시작까지 보통 2~4주 소요됩니다.`},
+  '절차':{kw:['절차','과정','순서','어떻게되','단계','프로세스'],answer:`📋 <strong>통합돌봄 서비스 신청 절차 (8단계)</strong><br><br>1️⃣ <strong>대상자 신청·접수</strong> — 행정복지센터 방문 또는 전화<br>2️⃣ <strong>대상자 발굴</strong> — 복지담당 공무원이 직접 방문 확인<br>3️⃣ <strong>사전조사</strong> — 생활실태, 건강상태 파악<br>4️⃣ <strong>종합판정조사</strong> — 노인/장애인 영역별 욕구 조사<br>5️⃣ <strong>개별지원계획 수립</strong> — 맞춤형 서비스 계획 작성<br>6️⃣ <strong>통합지원회의</strong> — 기관 간 협의로 서비스 확정<br>7️⃣ <strong>서비스 의뢰·제공</strong> — 담당 기관별 서비스 시작<br>8️⃣ <strong>모니터링</strong> — 정기 방문으로 변화 상황 확인`},
+  '서비스':{kw:['서비스','종류','내용','뭐','지원','혜택','어떤'],answer:`🎁 <strong>2026년 통합돌봄 주요 서비스</strong><br><br>🏥 <strong>보건의료</strong><br>• 일차의료 방문진료 (의과·한의과)<br>• 치매 관리 (치매안심센터)<br>• 정신건강복지센터 운영<br>• 만성질환 건강지원사업<br><br>💪 <strong>건강관리</strong><br>• 방문건강관리 (보건소)<br>• AI·IoT 기반 어르신 건강관리<br>• 건강백세운동교실<br><br>🛏 <strong>장기요양</strong><br>• 장기요양 재가급여 (방문요양·목욕·간호)<br>• 주·야간 보호, 단기보호<br>• 장기요양 통합재가서비스<br><br>🏠 <strong>일상생활돌봄</strong><br>• 노인맞춤돌봄 서비스<br>• 독거노인·장애인 응급안전 알림 서비스<br>• 긴급돌봄 지원사업`},
+  '치매':{kw:['치매','치매안심','인지','기억','검진','검사'],answer:`🧠 <strong>치매 관련 통합돌봄 서비스</strong><br><br>🔍 <strong>치매안심센터</strong> (보건소 내 운영)<br>• 치매 선별검사·진단 검사 — 무료<br>• 치매 환자 등록·관리<br>• 가족 교육 및 자조모임 지원<br>• 치매 예방 프로그램<br><br>🏡 <strong>치매관리주치의 시범사업</strong><br>• 치매 환자 주치의 지정<br>• 정기 방문 진료 및 약물 관리<br><br>💊 <strong>다제약물관리사업</strong><br>• 5가지 이상 복용 어르신 약물 점검<br><br>📞 치매안심센터 전화: 052-209-3000<br>🏥 울산 동구 치매안심센터: 봉수로 155 (보건소 내)`},
+  '방문진료':{kw:['방문진료','방문의료','집에서','찾아오','왕진','의사'],answer:`🏠 <strong>일차의료 방문진료 서비스</strong><br><br>이동이 어려운 어르신·장애인에게 의사가 직접 방문합니다.<br><br>✅ <strong>의과 방문진료</strong><br>• 대상: 거동 불편 어르신, 중증장애인<br>• 내용: 진료, 처방, 혈액검사, 주사치료<br>• 비용: 건강보험 적용 (본인부담 일부)<br><br>✅ <strong>한의과 방문진료</strong><br>• 내용: 침·뜸 치료, 한약 처방<br><br>✅ <strong>방문건강관리 (보건소)</strong><br>• 간호사·의사·영양사·물리치료사 방문<br>• 혈압·혈당 측정, 건강 상담<br>• 완전 무료<br><br>📞 신청: 읍면동 행정복지센터 또는 보건소`},
+  '장기요양':{kw:['장기요양','요양','요양등급','등급','1등급','재가','방문요양'],answer:`💊 <strong>장기요양 서비스 안내</strong><br><br>📋 <strong>등급 신청 방법</strong><br>건강보험공단 ☎ 1577-1000 또는 방문 신청<br><br>📊 <strong>등급별 서비스</strong><br>• 1~2등급: 시설급여 또는 재가급여 선택<br>• 3~5등급: 재가급여 (방문요양, 방문목욕, 방문간호 등)<br>• 인지지원등급: 주·야간보호 중심<br><br>🏠 <strong>재가급여 종류</strong><br>• 방문요양 — 가사지원, 신체활동 보조<br>• 방문목욕 — 목욕차량 이용 목욕 서비스<br>• 방문간호 — 간호사 방문 건강 관리<br>• 주·야간보호 — 낮 시간 보호 서비스<br><br>💰 본인부담: 재가급여 15%, 시설급여 20% (기초수급자 면제)`},
+  '비용':{kw:['비용','요금','돈','무료','본인부담','얼마','돈이','공짜'],answer:`💰 <strong>서비스 비용 안내</strong><br><br>✅ <strong>완전 무료 서비스</strong><br>• 방문건강관리 (보건소)<br>• 치매 선별·진단 검사<br>• 정신건강 상담<br>• AI·IoT 어르신 건강관리 기기 설치<br>• 독거노인 응급안전 알림 서비스<br><br>💳 <strong>본인부담이 있는 서비스</strong><br>• 장기요양 재가급여: 15% (기초수급자 0%)<br>• 장기요양 시설급여: 20% (기초수급자 0~7.5%)<br>• 일차의료 방문진료: 건강보험 적용 (진찰료 30~60%)<br><br>⚠️ 기초생활수급자·차상위 계층은 대부분 무료 또는 감면됩니다.<br>정확한 비용은 담당 기관에 개별 문의하세요.`},
+  '기관':{kw:['기관','가까운','찾기','보건소','주민센터','병원','위치','어디','전화'],answer:`📍 <strong>울산 동구 통합돌봄 참여 기관</strong><br><br>🏛 <strong>동구청 노인장애과</strong><br>　📞 052-209-3000 | 봉수로 155<br>　→ 노인·장애인 서비스 신청·연계<br><br>🏥 <strong>울산 동구 보건소</strong><br>　📞 052-209-3000 | 봉수로 155<br>　→ 방문건강관리, 치매검진, 정신건강<br><br>🧠 <strong>치매안심센터</strong><br>　📞 052-209-3000 | 보건소 내<br>　→ 치매 검사·등록·가족 지원<br><br>🏘 <strong>행정복지센터 (동별)</strong><br>　→ 서비스 신청 접수, 대상자 발굴<br><br>💊 <strong>건강보험공단 울산동부지사</strong><br>　📞 1577-1000<br>　→ 장기요양 등급 신청`}
+};
+function getBotAnswer(text){
+  const lower=text.toLowerCase();
+  for(const k in faqDB){const e=faqDB[k];if(e.kw.some(w=>lower.includes(w)||text.includes(w)))return e.answer;}
+  return `죄송합니다, 해당 질문에 대한 정보가 없습니다. 😔<br><br><strong>빠른 안내 버튼</strong>을 이용하시거나,<br><a href="#" onclick="goPage('board');return false;" style="color:var(--primary-dark);font-weight:700;">📋 상담게시판</a>에 글을 남겨 담당자의 직접 답변을 받아보세요!`;
+}
+function addMsg(text,isUser){
+  const wrap=document.getElementById('chat-messages');
+  const div=document.createElement('div');div.className='msg '+(isUser?'msg-user':'msg-bot');
+  div.innerHTML=`<div class="msg-sender">${isUser?'나 👤':'🤖 이음 AI'}</div><div class="msg-bubble">${text}</div>`;
+  wrap.appendChild(div);wrap.scrollTop=wrap.scrollHeight;
+}
+function sendFaq(q){addMsg(q,true);setTimeout(()=>addMsg(getBotAnswer(q),false),380);}
+function sendChat(){const inp=document.getElementById('chat-input');const t=inp.value.trim();if(!t)return;inp.value='';addMsg(t,true);setTimeout(()=>addMsg(getBotAnswer(t),false),380);}
+
+// ═══ BOARD ═══
+let boardPosts=[
+  {id:5,title:'통합돌봄 신청 방법 문의합니다',cat:'서비스 문의',date:'2026-04-10',status:'답변완료',secret:false},
+  {id:4,title:'방문진료 어떻게 받나요',cat:'서비스 문의',date:'2026-04-09',status:'답변완료',secret:false},
+  {id:3,title:'어머니 대상자 되는지 확인 부탁드립니다',cat:'대상자 여부 확인',date:'2026-04-08',status:'답변대기',secret:false},
+  {id:2,title:'치매 검진 예약은 어떻게 하나요?',cat:'기관 연계',date:'2026-04-07',status:'답변완료',secret:true},
+  {id:1,title:'요양보호사 연결 문의',cat:'기타',date:'2026-04-05',status:'답변대기',secret:false}
+];
+function renderBoard(){
+  const tb=document.getElementById('board-tbody');tb.innerHTML='';
+  [...boardPosts].reverse().forEach(p=>{
+    const tr=document.createElement('tr');
+    const badge=p.status==='답변완료'?'<span class="status-badge badge-done">✅ 답변완료</span>':'<span class="status-badge badge-wait">⏳ 답변대기</span>';
+    tr.innerHTML=`<td data-label="번호">${p.id}</td><td data-label="제목">${p.secret?'🔒 ':''}${p.title}</td><td data-label="카테고리">${p.cat}</td><td data-label="작성일">${p.date}</td><td data-label="상태">${badge}</td>`;
+    tb.appendChild(tr);
+  });
+}
+function toggleWriteForm(){const f=document.getElementById('write-form'),ic=document.getElementById('write-toggle-icon');if(f.style.display==='none'){f.style.display='block';ic.textContent='▲ 접기';}else{f.style.display='none';ic.textContent='▼ 펼치기';}}
+function submitPost(){
+  const title=document.getElementById('post-title').value.trim(),content=document.getElementById('post-content').value.trim(),cat=document.getElementById('post-cat').value,secret=document.getElementById('post-secret').checked,al=document.getElementById('post-alert');
+  if(!title||!content){showAlertEl(al,'⚠️ 제목과 내용을 모두 입력해주세요.','warn');return;}
+  const newId=Math.max(...boardPosts.map(p=>p.id))+1,today=new Date().toISOString().slice(0,10);
+  boardPosts.push({id:newId,title,cat,date:today,status:'답변대기',secret});
+  renderBoard();showAlertEl(al,'✅ 게시글이 등록되었습니다. 담당자가 확인 후 답변드릴 예정입니다.','success');
+  document.getElementById('post-title').value='';document.getElementById('post-content').value='';showToast('📋 게시글이 등록되었습니다!');
+}
+function switchBoardTab(tab){
+  document.getElementById('board-tab-posts').style.display=tab==='posts'?'':'none';
+  document.getElementById('board-tab-survey').style.display=tab==='survey'?'':'none';
+  document.querySelectorAll('#board-main-tabs button').forEach((b,i)=>b.classList.toggle('active',(tab==='posts'&&i===0)||(tab==='survey'&&i===1)));
+  if(tab==='survey'){renderSurveyResults();if(isLoggedIn){const f=document.getElementById('sv-name');if(f&&!f.value)f.value=loggedUser;}}
+}
+
+// ═══ SURVEY ═══
+function selectStar(groupId,val){
+  surveyRatings[groupId]=val;
+  const btns=document.querySelectorAll('#'+groupId+' button');
+  btns.forEach((b,i)=>b.classList.toggle('selected',i+1<=val));
+}
+function submitSurvey(){
+  const name=document.getElementById('sv-name').value.trim(),age=document.getElementById('sv-age').value,gu=document.getElementById('sv-gu').value,inst=document.getElementById('sv-inst').value,opinion=document.getElementById('sv-opinion').value.trim(),recommend=document.querySelector('input[name="sv-recommend"]:checked'),al=document.getElementById('survey-alert');
+  const satis=surveyRatings['sv-satis']||0,kind=surveyRatings['sv-kind']||0;
+  if(!name||!age||!gu||!inst||!satis||!kind){showAlertEl(al,'⚠️ 이름, 나이, 사는구, 이용기관, 만족도, 친절도는 필수입니다.','warn');return;}
+  surveys.push({name,age:parseInt(age),gu,inst,satis,kind,recommend:recommend?recommend.value:'미응답',opinion,date:new Date().toISOString().slice(0,10)});
+  showAlertEl(al,'✅ 설문이 제출되었습니다. 귀중한 의견 감사합니다! 😊','success');
+  showToast('📊 설문 제출 완료! 소중한 의견 감사합니다.');
+  // Reset
+  document.getElementById('sv-name').value='';document.getElementById('sv-age').value='';document.getElementById('sv-gu').value='';document.getElementById('sv-inst').value='';document.getElementById('sv-opinion').value='';
+  document.querySelectorAll('input[name="sv-recommend"]').forEach(r=>r.checked=false);
+  document.querySelectorAll('#sv-satis button,#sv-kind button').forEach(b=>b.classList.remove('selected'));
+  surveyRatings={};
+  renderSurveyResults();
+}
+function renderSurveyResults(){
+  const box=document.getElementById('survey-results-content');
+  if(!surveys.length){box.innerHTML='<p style="color:var(--text-light);">아직 제출된 설문이 없습니다.</p>';return;}
+  const total=surveys.length;
+  const avgSatis=(surveys.reduce((s,v)=>s+v.satis,0)/total).toFixed(1);
+  const avgKind=(surveys.reduce((s,v)=>s+v.kind,0)/total).toFixed(1);
+  const recYes=surveys.filter(v=>v.recommend==='yes').length;
+  // Institution breakdown
+  const instCount={};surveys.forEach(v=>{instCount[v.inst]=(instCount[v.inst]||0)+1;});
+  // Satisfaction distribution
+  const satDist=[0,0,0,0,0];surveys.forEach(v=>{if(v.satis>=1&&v.satis<=5)satDist[v.satis-1]++;});
+  const satLabels=['매우 불만','불만','보통','만족','매우 만족'];
+  let satBars=satDist.map((c,i)=>`<div class="survey-result-bar"><div class="bar-label">${satLabels[i]}</div><div class="bar-track"><div class="bar-fill" style="width:${total?Math.round(c/total*100):0}%"></div></div><div class="bar-val">${c}명</div></div>`).join('');
+  // Recent list
+  let recentList=[...surveys].reverse().slice(0,5).map(s=>`<div class="survey-item"><div class="si-meta">📅 ${s.date} | 📍 ${s.gu} | 🏛 ${s.inst}</div><div><strong>${s.name}</strong> (${s.age}세) — 만족도 ${'⭐'.repeat(s.satis)} / 친절도 ${'⭐'.repeat(s.kind)}</div>${s.opinion?`<div style="font-size:0.88rem;color:#555;margin-top:6px;padding:8px;background:#FFF8FC;border-radius:6px;">💬 "${s.opinion}"</div>`:''}</div>`).join('');
+  // Inst bars
+  let instBars=Object.entries(instCount).map(([k,v])=>`<div class="survey-result-bar"><div class="bar-label" style="width:110px;">${k}</div><div class="bar-track"><div class="bar-fill" style="width:${Math.round(v/total*100)}%"></div></div><div class="bar-val">${v}명</div></div>`).join('');
+  box.innerHTML=`
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:20px;">
+      <div style="background:linear-gradient(135deg,var(--primary),var(--primary-light));color:#fff;border-radius:10px;padding:16px;text-align:center;"><div style="font-size:1.8rem;font-weight:800;">${total}</div><div style="font-size:0.85rem;opacity:0.9;">총 응답 수</div></div>
+      <div style="background:linear-gradient(135deg,#f39c12,#f1c40f);color:#fff;border-radius:10px;padding:16px;text-align:center;"><div style="font-size:1.8rem;font-weight:800;">${avgSatis}<span style="font-size:1rem;">/5</span></div><div style="font-size:0.85rem;opacity:0.9;">평균 만족도</div></div>
+      <div style="background:linear-gradient(135deg,#2ecc71,#27ae60);color:#fff;border-radius:10px;padding:16px;text-align:center;"><div style="font-size:1.8rem;font-weight:800;">${total?Math.round(recYes/total*100):0}%</div><div style="font-size:0.85rem;opacity:0.9;">추천 의향</div></div>
+    </div>
+    <div style="font-weight:700;color:var(--primary-dark);margin-bottom:10px;">📊 만족도 분포</div>${satBars}
+    <div style="font-weight:700;color:var(--primary-dark);margin:16px 0 10px;">🏛 기관별 응답 현황</div>${instBars}
+    <div style="font-weight:700;color:var(--primary-dark);margin:16px 0 10px;">💬 최근 의견 (최대 5건)</div>${recentList}`;
+}
+function exportSurveyExcel(){
+  if(!surveys.length){showToast('⚠️ 저장할 설문 데이터가 없습니다.');return;}
+  const e=v=>(v==null?'':v+'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  const sc=v=>`<Cell><Data ss:Type="String">${e(v)}</Data></Cell>`;
+  const nc=v=>`<Cell><Data ss:Type="Number">${Number(v)||0}</Data></Cell>`;
+  const today=new Date().toISOString().slice(0,10);
+  const total=surveys.length;
+  // Sheet 1: 전체 응답 데이터
+  const hdr=['제출일','이름','나이','사는 구','이용 기관','서비스 만족도(1-5)','직원 친절도(1-5)','추천 의향','개선 의견'];
+  const headerRow='<Row>'+hdr.map(h=>sc(h)).join('')+'</Row>';
+  const dataRows=surveys.map(s=>'<Row>'+[s.date,s.name,s.age,s.gu,s.inst,s.satis,s.kind,s.recommend==='yes'?'예':'아니오',s.opinion||''].map(v=>sc(v)).join('')+'</Row>').join('');
+  // Sheet 2: 통계 및 분석
+  const avgS=(surveys.reduce((a,v)=>a+v.satis,0)/total).toFixed(1);
+  const avgK=(surveys.reduce((a,v)=>a+v.kind,0)/total).toFixed(1);
+  const recP=Math.round(surveys.filter(v=>v.recommend==='yes').length/total*100);
+  const instMap={};surveys.forEach(v=>{instMap[v.inst]=(instMap[v.inst]||0)+1;});
+  const instRows=Object.entries(instMap).map(([k,v])=>'<Row>'+sc(k)+nc(v)+sc(Math.round(v/total*100)+'%')+'</Row>').join('');
+  const satLabels=['매우 불만(1)','불만(2)','보통(3)','만족(4)','매우 만족(5)'];
+  const satDist=[0,0,0,0,0];surveys.forEach(v=>{if(v.satis>=1&&v.satis<=5)satDist[v.satis-1]++;});
+  const satRows=satDist.map((c,i)=>'<Row>'+sc(satLabels[i])+nc(c)+sc(Math.round(c/total*100)+'%')+'</Row>').join('');
+  const guMap={};surveys.forEach(v=>{guMap[v.gu]=(guMap[v.gu]||0)+1;});
+  const guRows=Object.entries(guMap).map(([k,v])=>'<Row>'+sc(k)+nc(v)+sc(Math.round(v/total*100)+'%')+'</Row>').join('');
+  const opinionRows=surveys.filter(s=>s.opinion).map(s=>'<Row>'+sc(s.date)+sc(s.name)+sc(s.inst)+sc(s.opinion)+'</Row>').join('');
+  const xml=`<?xml version="1.0" encoding="UTF-8"?><?mso-application progid="Excel.Sheet"?><Workbook xmlns="urn:schemas-microsoft-com:office:spreadsheet" xmlns:ss="urn:schemas-microsoft-com:office:spreadsheet">
+<Worksheet ss:Name="1. 전체 응답 데이터"><Table>
+${headerRow}${dataRows}
+</Table></Worksheet>
+<Worksheet ss:Name="2. 통계 및 분석"><Table>
+<Row>${sc('■ 전체 요약')}</Row>
+<Row>${sc('총 응답 수')}${nc(total)}</Row>
+<Row>${sc('평균 서비스 만족도')}${sc(avgS+' / 5.0')}</Row>
+<Row>${sc('평균 직원 친절도')}${sc(avgK+' / 5.0')}</Row>
+<Row>${sc('추천 의향 비율')}${sc(recP+'%')}</Row>
+<Row></Row>
+<Row>${sc('■ 기관별 응답 현황')}</Row>
+<Row>${sc('기관명')}${sc('응답 수')}${sc('비율')}</Row>
+${instRows}
+<Row></Row>
+<Row>${sc('■ 만족도 분포')}</Row>
+<Row>${sc('만족도 항목')}${sc('응답 수')}${sc('비율')}</Row>
+${satRows}
+<Row></Row>
+<Row>${sc('■ 지역별 응답 현황')}</Row>
+<Row>${sc('구 이름')}${sc('응답 수')}${sc('비율')}</Row>
+${guRows}
+<Row></Row>
+<Row>${sc('■ 개선 의견 목록')}</Row>
+<Row>${sc('제출일')}${sc('이름')}${sc('기관')}${sc('의견 내용')}</Row>
+${opinionRows||('<Row>'+sc('(의견 없음)')+'</Row>')}
+</Table></Worksheet>
+</Workbook>`;
+  const blob=new Blob(['\uFEFF'+xml],{type:'application/vnd.ms-excel;charset=utf-8'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='이음통합돌봄_설문결과_'+today+'.xls';a.click();
+  showToast('📊 설문 결과 엑셀 저장 완료!');
+}
+
+// ═══ ADMIN ═══
+function buildAdminContent(instIdx){
+  const instName=instNames[instIdx];
+  const received=receivedLinks.filter(r=>r.to===instName);
+  const unanswered=boardPosts.filter(p=>p.status==='답변대기');
+  // Survey results for this institution
+  const instSurveys=surveys.filter(s=>s.inst===instName);
+  let pRows=patients.map((p,i)=>{const sm={신청:'s-apply',방문확인:'s-visit',서비스중:'s-active',종결:'s-end'};return `<tr onclick="openDetailModal(${i})"><td>${p.name}</td><td>${p.birth}</td><td>${p.type}</td><td>${p.addr}</td><td>${p.services.join(', ')}</td><td><span class="status-pill ${sm[p.status]||'s-apply'}">${p.status}</span></td><td>${p.regDate}</td></tr>`;}).join('');
+  let html=`<div class="box" style="margin-top:0;border-radius:0 0 10px 10px;">`;
+  html+=`<div class="box-title">👥 담당 대상자 (오늘 현황)</div>`;
+  sampleSubjects.forEach((s,si)=>{
+    const lid='lf-'+instIdx+'-'+si;
+    html+=`<div class="subject-card"><div class="s-header"><span class="s-name">👤 ${s.name} (${s.age}세) <small style="color:var(--text-light);font-weight:400;">담당: ${s.officer}</small></span><span>${s.stars}</span></div><div class="s-req">📌 "${s.req}"</div><div style="margin-top:9px;display:flex;gap:8px;flex-wrap:wrap;"><button class="btn-secondary btn-sm" onclick="toggleLinkForm('${lid}')">🔗 연계 요청</button><button class="btn-secondary btn-sm" style="background:#fff8e1;border-color:#f9a825;" onclick="showToast('📞 ${s.name} 어르신에게 연락 처리되었습니다.')">📞 연락하기</button></div><div id="${lid}" class="link-form"><label style="font-weight:700;font-size:0.88rem;display:block;margin-bottom:8px;">연계할 기관 선택</label><select id="li-${instIdx}-${si}"><option value="">기관 선택</option>${instNames.filter(n=>n!==instName).map(n=>`<option>${n}</option>`).join('')}</select><textarea id="lm-${instIdx}-${si}" rows="2" placeholder="연계 메시지 입력..."></textarea><button class="btn-primary btn-sm" style="margin-top:0;width:auto;" onclick="sendLink(${instIdx},${si},'${s.name}')">📤 연계 요청 전송</button></div></div>`;
+  });
+  html+=`</div><div class="box"><div class="box-title" style="justify-content:space-between;">📋 대상자 등록 관리 <button class="btn-primary btn-sm" style="margin-top:0;width:auto;" onclick="openPatientModal()">➕ 신규 등록</button></div><div style="overflow-x:auto;"><table class="patient-table"><thead><tr><th>이름</th><th>생년월일</th><th>유형</th><th>주소</th><th>필요서비스</th><th>상태</th><th>등록일</th></tr></thead><tbody id="patient-tbody-${instIdx}">${pRows}</tbody></table></div><p style="font-size:0.82rem;color:var(--text-light);margin-top:8px;">* 행 클릭 시 상세정보 및 상태 변경 가능</p></div>`;
+  html+=`<div class="box"><div class="box-title">📬 상담게시판 미답변</div>`;
+  if(!unanswered.length)html+='<p style="color:var(--text-light);">미답변 게시글이 없습니다. ✅</p>';
+  else unanswered.forEach((p,pi)=>{const aid='ans-'+instIdx+'-'+pi;html+=`<div class="unanswered-item"><div class="q-title">📌 ${p.title}</div><div class="q-meta">${p.cat} | ${p.date}</div><div class="answer-row"><textarea id="${aid}" rows="2" placeholder="답변 입력..."></textarea><button class="btn-success btn-sm" onclick="submitAnswer(${p.id},'${aid}')">답변<br>등록</button></div></div>`;});
+  html+=`</div><div class="box"><div class="box-title">📨 연계 수신 현황</div>`;
+  if(!received.length)html+='<p style="color:var(--text-light);">수신된 연계 요청이 없습니다.</p>';
+  else received.forEach(r=>{html+=`<div class="received-item"><div class="ri-from">📤 ${r.from} → ${r.to} (${r.date})</div>대상자: <strong>${r.person}</strong> — ${r.msg}</div>`;});
+  html+=`</div>`;
+  // Survey summary for this inst
+  if(instSurveys.length>0){
+    const avg=(instSurveys.reduce((a,v)=>a+v.satis,0)/instSurveys.length).toFixed(1);
+    html+=`<div class="box"><div class="box-title">📊 설문 결과 (${instName})</div><p style="margin-bottom:12px;font-size:0.9rem;">총 <strong>${instSurveys.length}건</strong> 응답 | 평균 만족도: <strong>⭐ ${avg}/5.0</strong></p>`;
+    instSurveys.slice(-3).reverse().forEach(s=>{html+=`<div class="survey-item"><div class="si-meta">📅 ${s.date} | ${s.gu} | ${s.age}세</div><strong>${s.name}</strong> — 만족도 ${'⭐'.repeat(s.satis)} / 친절도 ${'⭐'.repeat(s.kind)}${s.opinion?`<div style="font-size:0.85rem;color:#555;margin-top:5px;padding:6px;background:#FFF8FC;border-radius:5px;">💬 ${s.opinion}</div>`:''}</div>`;});
+    html+=`<button onclick="goPage('board');switchBoardTab('survey')" style="background:#FFF0F5;color:var(--primary-dark);border:2px solid var(--primary-light);border-radius:8px;padding:8px 16px;font-size:0.88rem;font-weight:700;margin-top:10px;">📋 전체 설문 결과 보기</button></div>`;
+  }
+  return html;
+}
+function switchInst(idx,btn){document.querySelectorAll('.inst-tab-btn').forEach(b=>b.classList.remove('active'));btn.classList.add('active');document.getElementById('inst-contents').innerHTML=buildAdminContent(idx);}
+function toggleLinkForm(id){const el=document.getElementById(id);if(el)el.classList.toggle('open');}
+function sendLink(instIdx,si,pName){
+  const targetInst=document.getElementById('li-'+instIdx+'-'+si).value,msg=document.getElementById('lm-'+instIdx+'-'+si).value.trim();
+  if(!targetInst){showToast('⚠️ 연계할 기관을 선택해주세요.');return;}
+  if(!msg){showToast('⚠️ 연계 메시지를 입력해주세요.');return;}
+  receivedLinks.push({from:instNames[instIdx],to:targetInst,person:pName,msg,date:new Date().toISOString().slice(0,10)});
+  showToast('✅ 연계 요청이 '+targetInst+'로 전달되었습니다!');
+  document.getElementById('lm-'+instIdx+'-'+si).value='';toggleLinkForm('lf-'+instIdx+'-'+si);
+}
+function submitAnswer(postId,answerId){
+  const txt=document.getElementById(answerId).value.trim();if(!txt){showToast('⚠️ 답변 내용을 입력해주세요.');return;}
+  const post=boardPosts.find(p=>p.id===postId);if(post)post.status='답변완료';
+  renderBoard();showToast('✅ 답변이 등록되었습니다!');
+  const activeBtn=document.querySelector('.inst-tab-btn.active');
+  if(activeBtn){const idx=Array.from(document.querySelectorAll('.inst-tab-btn')).indexOf(activeBtn);document.getElementById('inst-contents').innerHTML=buildAdminContent(idx);}
+}
+
+// ═══ PATIENT MODALS ═══
+function openPatientModal(editIdx){
+  editingPatientIdx=editIdx!==undefined?editIdx:-1;
+  const modal=document.getElementById('patient-modal');
+  document.getElementById('patient-modal-title').textContent=editingPatientIdx>=0?'✏️ 대상자 정보 수정':'➕ 신규 대상자 등록';
+  if(editingPatientIdx>=0){const p=patients[editingPatientIdx];document.getElementById('pm-name').value=p.name;document.getElementById('pm-birth').value=p.birth;document.getElementById('pm-gender').value=p.gender;document.getElementById('pm-addr').value=p.addr;document.getElementById('pm-tel').value=p.tel;const typeR=document.querySelector(`input[name="pm-type"][value="${p.type}"]`);if(typeR)typeR.checked=true;document.getElementById('pm-health').value=p.health;document.querySelectorAll('.pm-svc').forEach(cb=>{cb.checked=p.services.includes(cb.value);});document.getElementById('pm-inst').value=p.inst;document.getElementById('pm-memo').value=p.memo;}
+  else{['pm-name','pm-birth','pm-addr','pm-tel','pm-health','pm-memo'].forEach(id=>document.getElementById(id).value='');document.getElementById('pm-gender').value='';document.querySelectorAll('.pm-svc').forEach(cb=>cb.checked=false);document.querySelectorAll('input[name="pm-type"]').forEach(r=>r.checked=false);}
+  modal.classList.add('open');
+}
+function closePatientModal(){document.getElementById('patient-modal').classList.remove('open');}
+function savePatient(){
+  const name=document.getElementById('pm-name').value.trim(),birth=document.getElementById('pm-birth').value,gender=document.getElementById('pm-gender').value,type=document.querySelector('input[name="pm-type"]:checked');
+  if(!name||!birth||!gender||!type){showToast('⚠️ 필수 항목을 입력해주세요.');return;}
+  const svcs=Array.from(document.querySelectorAll('.pm-svc:checked')).map(c=>c.value);
+  const data={name,birth,gender,addr:document.getElementById('pm-addr').value.trim(),tel:document.getElementById('pm-tel').value.trim(),type:type.value,health:document.getElementById('pm-health').value.trim(),services:svcs,inst:document.getElementById('pm-inst').value,memo:document.getElementById('pm-memo').value.trim(),status:editingPatientIdx>=0?patients[editingPatientIdx].status:'신청',regDate:editingPatientIdx>=0?patients[editingPatientIdx].regDate:new Date().toISOString().slice(0,10)};
+  if(editingPatientIdx>=0)patients[editingPatientIdx]=data;else patients.push(data);
+  closePatientModal();const activeBtn=document.querySelector('.inst-tab-btn.active');
+  if(activeBtn){const idx=Array.from(document.querySelectorAll('.inst-tab-btn')).indexOf(activeBtn);document.getElementById('inst-contents').innerHTML=buildAdminContent(idx);}
+  showToast(editingPatientIdx>=0?'✅ 대상자 정보가 수정되었습니다.':'✅ 신규 대상자가 등록되었습니다.');
+}
+function openDetailModal(idx){
+  const p=patients[idx];editingPatientIdx=idx;selectedStatus=p.status;
+  document.getElementById('pd-name-title').textContent='👤 '+p.name+' 상세 정보';
+  document.getElementById('pd-body').innerHTML=`<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px;"><div><label style="font-size:0.8rem;color:var(--text-light);">이름</label><div style="font-weight:700;">${p.name}</div></div><div><label style="font-size:0.8rem;color:var(--text-light);">생년월일</label><div>${p.birth}</div></div><div><label style="font-size:0.8rem;color:var(--text-light);">성별</label><div>${p.gender}</div></div><div><label style="font-size:0.8rem;color:var(--text-light);">유형</label><div>${p.type}</div></div><div style="grid-column:1/-1;"><label style="font-size:0.8rem;color:var(--text-light);">주소</label><div>${p.addr}</div></div><div><label style="font-size:0.8rem;color:var(--text-light);">연락처</label><div>${p.tel}</div></div><div><label style="font-size:0.8rem;color:var(--text-light);">담당 기관</label><div>${p.inst}</div></div><div style="grid-column:1/-1;"><label style="font-size:0.8rem;color:var(--text-light);">건강상태</label><div>${p.health||'-'}</div></div><div style="grid-column:1/-1;"><label style="font-size:0.8rem;color:var(--text-light);">필요 서비스</label><div>${p.services.join(', ')||'-'}</div></div><div style="grid-column:1/-1;"><label style="font-size:0.8rem;color:var(--text-light);">특이사항</label><div>${p.memo||'-'}</div></div></div><button class="btn-secondary btn-sm" style="margin-bottom:14px;" onclick="closeDetailModal();openPatientModal(${idx})">✏️ 정보 수정</button>`;
+  const statuses=['신청','방문확인','서비스중','종결'];
+  document.getElementById('pd-status-flow').innerHTML=statuses.map(s=>`<button class="status-flow-btn ${s===p.status?'selected':''}" onclick="selectStatus(this,'${s}')">${s}</button>`).join('');
+  document.getElementById('patient-detail-modal').classList.add('open');
+}
+function closeDetailModal(){document.getElementById('patient-detail-modal').classList.remove('open');}
+function selectStatus(btn,status){document.querySelectorAll('.status-flow-btn').forEach(b=>b.classList.remove('selected'));btn.classList.add('selected');selectedStatus=status;}
+function updatePatientStatus(){
+  if(editingPatientIdx>=0)patients[editingPatientIdx].status=selectedStatus;
+  closeDetailModal();const activeBtn=document.querySelector('.inst-tab-btn.active');
+  if(activeBtn){const idx=Array.from(document.querySelectorAll('.inst-tab-btn')).indexOf(activeBtn);document.getElementById('inst-contents').innerHTML=buildAdminContent(idx);}
+  showToast('✅ 상태가 "'+selectedStatus+'"으로 변경되었습니다.');
+}
+
+// ═══ REPORT PAGE ═══
+function toggleMethod(btn){btn.classList.toggle('selected');}
+function rpInstChange(){
+  const sel=document.getElementById('rp-inst');
+  const instPats=patients.filter(p=>p.inst===sel.value);
+  const allForPanel=[...instPats,...sampleSubjects.filter(s=>!instPats.find(p=>p.name===s.name))];
+  selectedClientNames.clear();
+  const panel=document.getElementById('rp-client-panel');panel.innerHTML='';
+  if(!sel.value){panel.innerHTML='<span style="color:var(--text-light);font-size:0.88rem;">← 기관을 먼저 선택해주세요</span>';return;}
+  if(!allForPanel.length){panel.innerHTML='<span style="color:var(--text-light);font-size:0.88rem;">등록된 대상자가 없습니다</span>';return;}
+  allForPanel.forEach(p=>{
+    const btn=document.createElement('button');btn.type='button';btn.className='client-btn';
+    const age=p.birth?new Date().getFullYear()-parseInt(p.birth.slice(0,4)):p.age;
+    const stars=p.stars||'';
+    btn.textContent=`${p.name} (${age||p.age||'?'}세)`;
+    btn.dataset.name=p.name;
+    btn.onclick=()=>toggleClientSelect(btn,p);
+    panel.appendChild(btn);
+  });
+  autoFillContentByInst(allForPanel);
+}
+function toggleClientSelect(btn,p){
+  btn.classList.toggle('selected');
+  if(btn.classList.contains('selected'))selectedClientNames.add(p.name);
+  else selectedClientNames.delete(p.name);
+  document.getElementById('rp-names').value=Array.from(selectedClientNames).join(', ');
+  updateContentFromSelected();
+}
+function selectAllClients(){
+  document.querySelectorAll('#rp-client-panel .client-btn').forEach(b=>{b.classList.add('selected');selectedClientNames.add(b.dataset.name);});
+  document.getElementById('rp-names').value=Array.from(selectedClientNames).join(', ');
+  updateContentFromSelected();
+}
+function deselectAllClients(){
+  document.querySelectorAll('#rp-client-panel .client-btn').forEach(b=>b.classList.remove('selected'));
+  selectedClientNames.clear();document.getElementById('rp-names').value='';document.getElementById('rp-content').value='';
+}
+function updateContentFromSelected(){
+  const selected=patients.filter(p=>selectedClientNames.has(p.name));
+  const sampleSel=sampleSubjects.filter(s=>selectedClientNames.has(s.name)&&!selected.find(p=>p.name===s.name));
+  const all=[...selected,...sampleSel];
+  if(!all.length){document.getElementById('rp-content').value='';return;}
+  const lines=all.map(p=>{
+    if(p.health!==undefined){return `[${p.name}(${new Date().getFullYear()-parseInt(p.birth.slice(0,4))})] 컨디션: ${p.health} | 상태: ${p.status} | 서비스: ${p.services.join(', ')}`;}
+    else{return `[${p.name}(${p.age}세)] 컨디션: ${p.stars||''} | 상태: 확인 중 | 건강: ${p.req}`;}
+  });
+  document.getElementById('rp-content').value=lines.join('\n');
+}
+function autoFillContentByInst(list){
+  if(!list.length)return;
+  const today=new Date().toISOString().slice(0,10);
+  document.getElementById('rp-date-from').value=today.slice(0,8)+'01';
+  document.getElementById('rp-date-to').value=today;
+}
+
+function generateReport(){
+  const senderInst=document.getElementById('rp-sender-inst').value||'울산광역시 동구청';
+  const inst=document.getElementById('rp-inst').value;const officer=document.getElementById('rp-officer').value||'담당자';
+  const names=document.getElementById('rp-names').value;const dateFrom=document.getElementById('rp-date-from').value;const dateTo=document.getElementById('rp-date-to').value;
+  const methods=Array.from(document.querySelectorAll('#rp-methods .method-btn.selected')).map(b=>b.textContent.trim());
+  const content=document.getElementById('rp-content').value;const link=document.getElementById('rp-link').value;const special=document.getElementById('rp-special').value;
+  if(!inst){showToast('⚠️ 담당 부서/기관을 선택해주세요.');return;}
+  if(!names){showToast('⚠️ 대상자를 선택해주세요.');return;}
+  const docNo='DC-'+new Date().toISOString().slice(0,10).replace(/-/g,'')+'-'+Math.floor(Math.random()*900+100);
+  const today=new Date();
+  const dateStr=`${today.getFullYear()}년 ${today.getMonth()+1}월 ${today.getDate()}일`;
+  const periodStr=dateFrom&&dateTo?`${dateFrom} ~ ${dateTo}`:dateFrom||dateTo||today.toISOString().slice(0,10);
+  const methodStr=methods.length?methods.join(', '):'방문';
+  const html=`<div class="report-doc" id="report-doc-inner">
+    <div class="doc-header-row">
+      <div class="doc-sender">${senderInst}</div>
+      <div class="doc-docno">문서번호: ${docNo}<br>작성일: ${today.toISOString().slice(0,10)}</div>
+    </div>
+    <hr>
+    <div class="doc-title">상 담 일 지 &amp; 활 동 보 고 서</div>
+    <div class="doc-subtitle">${senderInst.includes('동구')?'울산광역시 동구':'울산광역시'} 이음 통합돌봄 지원사업</div>
+    <hr>
+    <table>
+      <tr><td>발 신</td><td>${senderInst} &gt; ${inst}</td></tr>
+      <tr><td>담당자</td><td>${officer}</td><td>상담 방법</td><td>${methodStr}</td></tr>
+      <tr><td>상담 기간</td><td>${periodStr}</td><td>대 상 자</td><td>${names}</td></tr>
+    </table>
+    <div class="section-h">1. 상담 내용</div>
+    <div class="section-body">${content||'(내용 없음)'}</div>
+    ${link?`<div class="section-h">2. 연계 기관 및 연계 내용</div><div class="section-body">${link}</div>`:''}
+    <div class="section-h">${link?'3':'2'}. 특이사항 및 추후 조치 계획</div>
+    <div class="section-body">${special||'해당 없음'}</div>
+    <div style="text-align:right;margin-top:24px;font-size:0.88rem;color:#666;">${dateStr}</div>
+    <div class="sign-row">
+      <div class="sign-box"><span>담당자</span><br>${officer}</div>
+      <div class="sign-box"><span>팀 장</span><br>&nbsp;</div>
+      <div class="sign-box"><span>기 관 장</span><br>&nbsp;</div>
+    </div>
+    <div style="text-align:center;margin-top:18px;font-size:0.78rem;color:#aaa;">본 문서는 이음 통합돌봄 플랫폼을 통해 자동 생성되었습니다.</div>
+  </div>`;
+  document.getElementById('report-doc-content').innerHTML=html;
+  document.getElementById('report-preview-box').style.display='';
+  document.getElementById('report-preview-box').scrollIntoView({behavior:'smooth'});
+}
+
+function savePDF(){
+  const senderInst=document.getElementById('rp-sender-inst').value||'울산광역시 동구청';
+  const inst=document.getElementById('rp-inst').value;const officer=document.getElementById('rp-officer').value||'담당자';
+  const names=document.getElementById('rp-names').value;const dateFrom=document.getElementById('rp-date-from').value;const dateTo=document.getElementById('rp-date-to').value;
+  const methods=Array.from(document.querySelectorAll('#rp-methods .method-btn.selected')).map(b=>b.textContent.trim());
+  const content=document.getElementById('rp-content').value;const link=document.getElementById('rp-link').value;const special=document.getElementById('rp-special').value;
+  const docNo='DC-'+new Date().toISOString().slice(0,10).replace(/-/g,'')+'-'+Math.floor(Math.random()*900+100);
+  const today=new Date();const dateStr=`${today.getFullYear()}년 ${today.getMonth()+1}월 ${today.getDate()}일`;
+  const periodStr=dateFrom&&dateTo?`${dateFrom} ~ ${dateTo}`:today.toISOString().slice(0,10);
+  const methodStr=methods.length?methods.join(', '):'방문';
+  const win=window.open('','_blank','width=900,height=750,scrollbars=yes');
+  win.document.write(`<!DOCTYPE html><html lang="ko"><head><meta charset="UTF-8"><title>상담일지_${today.toISOString().slice(0,10)}</title>
+<style>
+body{font-family:'Malgun Gothic','맑은 고딕',sans-serif;padding:30px;max-width:750px;margin:0 auto;font-size:14px;color:#333;}
+.print-btn{background:#FF6B9D;color:#fff;border:none;padding:12px 28px;border-radius:8px;font-size:1rem;font-weight:700;cursor:pointer;margin-bottom:24px;display:block;width:100%;}
+.print-btn:hover{background:#FF4D7D;}
+@media print{.print-btn{display:none;}.doc-wrap{padding:0;}}
+.doc-wrap{border:1px solid #ddd;border-radius:8px;padding:32px;}
+.doc-header-row{display:flex;justify-content:space-between;margin-bottom:20px;}
+.doc-sender{font-size:1rem;font-weight:700;}
+.doc-docno{font-size:0.8rem;color:#666;text-align:right;line-height:1.8;}
+h2{text-align:center;font-size:1.3rem;letter-spacing:0.15em;margin-bottom:6px;}
+.subtitle{text-align:center;font-size:0.88rem;color:#666;margin-bottom:18px;}
+hr{border:none;border-top:2px solid #333;margin:14px 0;}
+table{width:100%;border-collapse:collapse;margin-bottom:16px;}
+table td{border:1px solid #ccc;padding:8px 12px;font-size:0.88rem;}
+table td:first-child{background:#f7f7f7;font-weight:700;text-align:center;width:80px;}
+.sec-h{background:#FFE4EE;border-left:4px solid #FF6B9D;padding:6px 12px;font-weight:700;margin:14px 0 7px;border-radius:0 5px 5px 0;}
+.sec-body{border:1px solid #eee;border-radius:5px;padding:12px;min-height:55px;white-space:pre-wrap;font-size:0.88rem;line-height:1.8;margin-bottom:12px;}
+.sign-row{display:flex;justify-content:flex-end;gap:10px;margin-top:26px;}
+.sign-box{border:1px solid #ccc;border-radius:5px;width:100px;height:75px;display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:0.85rem;}
+.sign-box span{font-size:0.75rem;color:#999;}
+.footer-note{text-align:center;font-size:0.72rem;color:#aaa;margin-top:16px;}
+</style></head><body>
+<button class="print-btn" onclick="window.print()">🖨️ PDF로 저장하기 (Ctrl+P → PDF 저장)</button>
+<div class="doc-wrap">
+  <div class="doc-header-row"><div class="doc-sender">${senderInst}</div><div class="doc-docno">문서번호: ${docNo}<br>작성일: ${today.toISOString().slice(0,10)}</div></div>
+  <hr><h2>상 담 일 지 &amp; 활 동 보 고 서</h2>
+  <div class="subtitle">${senderInst.includes('동구')?'울산광역시 동구':'울산광역시'} 이음 통합돌봄 지원사업</div><hr>
+  <table><tr><td>발 신</td><td>${senderInst} &gt; ${inst}</td></tr><tr><td>담당자</td><td>${officer}</td><td style="background:#f7f7f7;font-weight:700;text-align:center;width:80px;">상담 방법</td><td>${methodStr}</td></tr><tr><td>상담 기간</td><td>${periodStr}</td><td style="background:#f7f7f7;font-weight:700;text-align:center;">대 상 자</td><td>${names}</td></tr></table>
+  <div class="sec-h">1. 상담 내용</div><div class="sec-body">${content||'(내용 없음)'}</div>
+  ${link?`<div class="sec-h">2. 연계 기관 및 연계 내용</div><div class="sec-body">${link}</div>`:''}
+  <div class="sec-h">${link?'3':'2'}. 특이사항 및 추후 조치 계획</div><div class="sec-body">${special||'해당 없음'}</div>
+  <div style="text-align:right;margin-top:22px;font-size:0.85rem;color:#666;">${dateStr}</div>
+  <div class="sign-row">
+    <div class="sign-box"><span>담당자</span><br>${officer}</div>
+    <div class="sign-box"><span>팀 장</span><br>&nbsp;</div>
+    <div class="sign-box"><span>기 관 장</span><br>&nbsp;</div>
+  </div>
+  <div class="footer-note">본 문서는 이음 통합돌봄 플랫폼을 통해 자동 생성되었습니다.</div>
+</div></body></html>`);
+  win.document.close();
+}
+
+function saveExcel(){
+  const inst=document.getElementById('rp-inst').value||'전체';
+  const officer=document.getElementById('rp-officer').value||'담당자';
+  const names=document.getElementById('rp-names').value||'-';
+  const dateFrom=document.getElementById('rp-date-from').value;const dateTo=document.getElementById('rp-date-to').value;
+  const methods=Array.from(document.querySelectorAll('#rp-methods .method-btn.selected')).map(b=>b.textContent.trim());
+  const content=document.getElementById('rp-content').value;const special=document.getElementById('rp-special').value;
+  const today=new Date().toISOString().slice(0,10);
+  const esc=v=>(v+'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  const selectedPats=patients.filter(p=>names.split(',').map(n=>n.trim()).includes(p.name));
+  // Sheet 1: 전체 상담 데이터
+  const pRows=selectedPats.map(p=>`<Row><Cell><Data ss:Type="String">${esc(p.name)}</Data></Cell><Cell><Data ss:Type="String">${p.birth}</Data></Cell><Cell><Data ss:Type="String">${p.gender}</Data></Cell><Cell><Data ss:Type="String">${p.type}</Data></Cell><Cell><Data ss:Type="String">${p.addr}</Data></Cell><Cell><Data ss:Type="String">${p.services.join(', ')}</Data></Cell><Cell><Data ss:Type="String">${p.status}</Data></Cell><Cell><Data ss:Type="String">${p.health}</Data></Cell><Cell><Data ss:Type="String">${p.inst}</Data></Cell></Row>`).join('');
+  // Sheet 2: 통계
+  const totalPat=selectedPats.length||1;
+  const typeCounts={노인:0,장애인:0,기타:0};selectedPats.forEach(p=>{typeCounts[p.type]=(typeCounts[p.type]||0)+1;});
+  const statusCounts={신청:0,방문확인:0,서비스중:0,종결:0};selectedPats.forEach(p=>{statusCounts[p.status]=(statusCounts[p.status]||0)+1;});
+  const svcCounts={};selectedPats.forEach(p=>p.services.forEach(s=>{svcCounts[s]=(svcCounts[s]||0)+1;}));
+  const typeRows=Object.entries(typeCounts).map(([k,v])=>`<Row><Cell><Data ss:Type="String">${k}</Data></Cell><Cell><Data ss:Type="Number">${v}</Data></Cell><Cell><Data ss:Type="String">${Math.round(v/totalPat*100)}%</Data></Cell></Row>`).join('');
+  const statusRows=Object.entries(statusCounts).map(([k,v])=>`<Row><Cell><Data ss:Type="String">${k}</Data></Cell><Cell><Data ss:Type="Number">${v}</Data></Cell><Cell><Data ss:Type="String">${Math.round(v/totalPat*100)}%</Data></Cell></Row>`).join('');
+  const svcRows=Object.entries(svcCounts).map(([k,v])=>`<Row><Cell><Data ss:Type="String">${k}</Data></Cell><Cell><Data ss:Type="Number">${v}</Data></Cell><Cell><Data ss:Type="String">${Math.round(v/totalPat*100)}%</Data></Cell></Row>`).join('');
+  // Sheet 3: 참고 정보
+  const xml=`<?xml version="1.0" encoding="UTF-8"?><?mso-application progid="Excel.Sheet"?><Workbook xmlns="urn:schemas-microsoft-com:office:spreadsheet" xmlns:ss="urn:schemas-microsoft-com:office:spreadsheet">
+<Worksheet ss:Name="1. 전체 상담 데이터"><Table>
+<Row><Cell><Data ss:Type="String">작성일</Data></Cell><Cell><Data ss:Type="String">${today}</Data></Cell></Row>
+<Row><Cell><Data ss:Type="String">기관</Data></Cell><Cell><Data ss:Type="String">${esc(inst)}</Data></Cell></Row>
+<Row><Cell><Data ss:Type="String">담당자</Data></Cell><Cell><Data ss:Type="String">${esc(officer)}</Data></Cell></Row>
+<Row><Cell><Data ss:Type="String">상담 기간</Data></Cell><Cell><Data ss:Type="String">${dateFrom} ~ ${dateTo}</Data></Cell></Row>
+<Row><Cell><Data ss:Type="String">상담 방법</Data></Cell><Cell><Data ss:Type="String">${esc(methods.join(', '))}</Data></Cell></Row>
+<Row></Row>
+<Row><Cell><Data ss:Type="String">이름</Data></Cell><Cell><Data ss:Type="String">생년월일</Data></Cell><Cell><Data ss:Type="String">성별</Data></Cell><Cell><Data ss:Type="String">유형</Data></Cell><Cell><Data ss:Type="String">주소</Data></Cell><Cell><Data ss:Type="String">서비스</Data></Cell><Cell><Data ss:Type="String">상태</Data></Cell><Cell><Data ss:Type="String">건강상태</Data></Cell><Cell><Data ss:Type="String">담당기관</Data></Cell></Row>
+${pRows}
+<Row></Row>
+<Row><Cell><Data ss:Type="String">상담 내용</Data></Cell><Cell><Data ss:Type="String">${esc(content)}</Data></Cell></Row>
+<Row><Cell><Data ss:Type="String">특이사항</Data></Cell><Cell><Data ss:Type="String">${esc(special)}</Data></Cell></Row>
+</Table></Worksheet>
+<Worksheet ss:Name="2. 통계 현황"><Table>
+<Row><Cell><Data ss:Type="String">■ 대상자 유형별 현황</Data></Cell></Row>
+<Row><Cell><Data ss:Type="String">유형</Data></Cell><Cell><Data ss:Type="String">인원수</Data></Cell><Cell><Data ss:Type="String">비율</Data></Cell></Row>
+${typeRows}
+<Row></Row>
+<Row><Cell><Data ss:Type="String">■ 대상자 상태별 현황</Data></Cell></Row>
+<Row><Cell><Data ss:Type="String">상태</Data></Cell><Cell><Data ss:Type="String">인원수</Data></Cell><Cell><Data ss:Type="String">비율</Data></Cell></Row>
+${statusRows}
+<Row></Row>
+<Row><Cell><Data ss:Type="String">■ 서비스 수요 현황</Data></Cell></Row>
+<Row><Cell><Data ss:Type="String">서비스</Data></Cell><Cell><Data ss:Type="String">신청 인원</Data></Cell><Cell><Data ss:Type="String">비율</Data></Cell></Row>
+${svcRows}
+</Table></Worksheet>
+<Worksheet ss:Name="3. 참고 정보"><Table>
+<Row><Cell><Data ss:Type="String">■ 이음 통합돌봄 서비스 참고 정보</Data></Cell></Row>
+<Row></Row>
+<Row><Cell><Data ss:Type="String">기관명</Data></Cell><Cell><Data ss:Type="String">전화번호</Data></Cell><Cell><Data ss:Type="String">주요 업무</Data></Cell></Row>
+<Row><Cell><Data ss:Type="String">동구청 노인장애과</Data></Cell><Cell><Data ss:Type="String">052-209-3000</Data></Cell><Cell><Data ss:Type="String">노인·장애인 서비스 신청·연계</Data></Cell></Row>
+<Row><Cell><Data ss:Type="String">동구 보건소</Data></Cell><Cell><Data ss:Type="String">052-209-3000</Data></Cell><Cell><Data ss:Type="String">방문건강관리, 치매검진, 정신건강</Data></Cell></Row>
+<Row><Cell><Data ss:Type="String">치매안심센터</Data></Cell><Cell><Data ss:Type="String">052-209-3000</Data></Cell><Cell><Data ss:Type="String">치매 검사·등록·가족 지원</Data></Cell></Row>
+<Row><Cell><Data ss:Type="String">건강보험공단</Data></Cell><Cell><Data ss:Type="String">1577-1000</Data></Cell><Cell><Data ss:Type="String">장기요양등급 신청</Data></Cell></Row>
+<Row></Row>
+<Row><Cell><Data ss:Type="String">■ 서비스 유형별 근거 법령</Data></Cell></Row>
+<Row><Cell><Data ss:Type="String">방문요양</Data></Cell><Cell><Data ss:Type="String">노인장기요양보험법 제23조</Data></Cell></Row>
+<Row><Cell><Data ss:Type="String">방문건강관리</Data></Cell><Cell><Data ss:Type="String">지역보건법 제11조</Data></Cell></Row>
+<Row><Cell><Data ss:Type="String">노인맞춤돌봄</Data></Cell><Cell><Data ss:Type="String">노인복지법 제27조의2</Data></Cell></Row>
+<Row><Cell><Data ss:Type="String">장애인활동지원</Data></Cell><Cell><Data ss:Type="String">장애인활동 지원에 관한 법률 제16조</Data></Cell></Row>
+<Row></Row>
+<Row><Cell><Data ss:Type="String">■ 2026년 통합돌봄 사업 주요 변경사항</Data></Cell></Row>
+<Row><Cell><Data ss:Type="String">항목</Data></Cell><Cell><Data ss:Type="String">내용</Data></Cell></Row>
+<Row><Cell><Data ss:Type="String">AI·IoT 건강관리 확대</Data></Cell><Cell><Data ss:Type="String">독거노인 가정 내 스마트 기기 설치 확대</Data></Cell></Row>
+<Row><Cell><Data ss:Type="String">장기요양 통합재가서비스</Data></Cell><Cell><Data ss:Type="String">방문요양+방문간호 통합 제공 확대</Data></Cell></Row>
+<Row><Cell><Data ss:Type="String">일차의료 방문진료</Data></Cell><Cell><Data ss:Type="String">의과·한의과 방문진료 수가 신설 확대</Data></Cell></Row>
+<Row><Cell><Data ss:Type="String">치매관리주치의</Data></Cell><Cell><Data ss:Type="String">치매 환자 주치의 시범사업 전국 확대</Data></Cell></Row>
+</Table></Worksheet>
+</Workbook>`;
+  const blob=new Blob(['\uFEFF'+xml],{type:'application/vnd.ms-excel;charset=utf-8'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='이음통합돌봄_상담일지_'+today+'.xls';a.click();
+  showToast('📊 엑셀 파일(3시트) 저장 완료!');
+}
+
+// ═══ UTILS ═══
+function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),3000);}
+function showAlertEl(el,msg,type){el.innerHTML=msg;el.style.display='block';const styles={success:{bg:'#d5f5e3',border:'#1e8449',color:'#1a5e2a'},info:{bg:'#FFF0F5',border:'var(--primary-light)',color:'var(--primary-dark)'},warn:{bg:'#fff3cd',border:'#ffc107',color:'#856404'}};const s=styles[type]||styles.info;el.style.background=s.bg;el.style.borderColor=s.border;el.style.color=s.color;}
+
+// ═══ INIT ═══
+document.addEventListener('DOMContentLoaded',()=>{
+  populateSido();renderBoard();initDiag();
+  document.getElementById('inst-contents').innerHTML=buildAdminContent(0);
+  document.getElementById('reg-birth').max=new Date().toISOString().slice(0,10);
+  // Set default dates for report
+  const today=new Date().toISOString().slice(0,10);
+  document.getElementById('rp-date-to').value=today;
+  document.getElementById('rp-date-from').value=today.slice(0,8)+'01';
+  // Render survey results
+  renderSurveyResults();
+  const hash=window.location.hash.replace('#','');
+  if(pageIds.includes(hash))showPage(hash);
+  else history.replaceState({page:'home'},'','#home');
+});
+</script>
+</body>
+</html>
