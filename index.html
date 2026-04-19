@@ -4,15 +4,17 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>구강보건교육 신청 | 동구보건소</title>
+
+  <!-- Supabase JS -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <!-- SheetJS (엑셀) -->
   <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
+
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
     body {
       font-family: 'Malgun Gothic', '맑은 고딕', sans-serif;
-      background: #f0f4f8;
-      color: #1a2a3a;
-      min-height: 100vh;
+      background: #f0f4f8; color: #1a2a3a; min-height: 100vh;
     }
 
     /* ── 헤더 ── */
@@ -20,32 +22,38 @@
       background: linear-gradient(135deg, #0d47a1 0%, #1565c0 60%, #1976d2 100%);
       color: #fff; padding: 0;
     }
-    .header-top {
-      display: flex; align-items: center; gap: 14px;
-      padding: 18px 24px 14px;
-    }
+    .header-top { display: flex; align-items: center; gap: 14px; padding: 18px 24px 14px; }
     .logo-circle {
-      width: 52px; height: 52px;
-      background: rgba(255,255,255,0.18); border-radius: 50%;
-      display: flex; align-items: center; justify-content: center;
+      width: 52px; height: 52px; background: rgba(255,255,255,0.18);
+      border-radius: 50%; display: flex; align-items: center; justify-content: center;
       font-size: 26px; flex-shrink: 0;
     }
     .header-titles h1 { font-size: 1.25rem; font-weight: 700; letter-spacing: -0.3px; }
     .header-titles p  { font-size: 0.78rem; opacity: 0.82; margin-top: 2px; }
-    .header-banner {
-      background: rgba(0,0,0,0.18); padding: 18px 24px 20px; text-align: center;
-    }
+    .header-banner { background: rgba(0,0,0,0.18); padding: 18px 24px 20px; text-align: center; }
     .header-banner .edu-title {
       font-size: 1.6rem; font-weight: 800; letter-spacing: -0.5px;
       text-shadow: 0 2px 8px rgba(0,0,0,0.25);
     }
     .header-banner .edu-sub { font-size: 0.88rem; opacity: 0.88; margin-top: 6px; }
     .free-badge {
-      display: inline-block;
-      background: #ffeb3b; color: #1a237e;
-      font-size: 0.78rem; font-weight: 700;
-      padding: 3px 12px; border-radius: 20px; margin-top: 10px;
+      display: inline-block; background: #ffeb3b; color: #1a237e;
+      font-size: 0.78rem; font-weight: 700; padding: 3px 12px;
+      border-radius: 20px; margin-top: 10px;
     }
+
+    /* ── 실시간 배지 ── */
+    .live-badge {
+      display: inline-flex; align-items: center; gap: 5px;
+      background: rgba(0,200,100,0.18); color: #b9ffd8;
+      font-size: 0.73rem; font-weight: 600;
+      padding: 3px 10px; border-radius: 20px; margin-top: 8px;
+    }
+    .live-dot {
+      width: 7px; height: 7px; border-radius: 50%;
+      background: #4cff91; animation: blink 1.2s infinite;
+    }
+    @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.2} }
 
     /* ── 정보 카드 ── */
     .info-section { max-width: 680px; margin: 0 auto; padding: 22px 16px 0; }
@@ -90,9 +98,11 @@
       font-size: 1.05rem; font-weight: 700; cursor: pointer;
       font-family: inherit; letter-spacing: 0.5px;
       transition: opacity 0.2s, transform 0.1s;
+      display: flex; align-items: center; justify-content: center; gap: 8px;
     }
     .submit-btn:hover  { opacity: 0.92; }
     .submit-btn:active { transform: scale(0.98); }
+    .submit-btn:disabled { opacity: 0.6; cursor: not-allowed; }
 
     /* ── 알림 ── */
     .alert {
@@ -105,10 +115,9 @@
     /* ── 관리자 ── */
     .admin-section { max-width: 680px; margin: 24px auto 0; padding: 0 16px; }
     .admin-toggle {
-      background: none; border: 1.5px solid #90a4ae;
-      border-radius: 8px; padding: 9px 18px;
-      font-size: 0.82rem; color: #546e7a; cursor: pointer;
-      font-family: inherit; font-weight: 600; transition: all 0.2s;
+      background: none; border: 1.5px solid #90a4ae; border-radius: 8px;
+      padding: 9px 18px; font-size: 0.82rem; color: #546e7a;
+      cursor: pointer; font-family: inherit; font-weight: 600; transition: all 0.2s;
     }
     .admin-toggle:hover { border-color: #1565c0; color: #1565c0; }
     .admin-panel {
@@ -123,15 +132,13 @@
     }
     .admin-header h3 { font-size: 0.95rem; color: #0d47a1; font-weight: 700; }
     .count-badge {
-      background: #0d47a1; color: #fff;
-      font-size: 0.75rem; font-weight: 700;
-      padding: 2px 10px; border-radius: 20px;
+      background: #0d47a1; color: #fff; font-size: 0.75rem;
+      font-weight: 700; padding: 2px 10px; border-radius: 20px;
     }
     .password-area { display: flex; gap: 8px; margin-bottom: 14px; }
     .password-area input {
-      flex: 1; padding: 9px 12px;
-      border: 1.5px solid #b0c4de; border-radius: 8px;
-      font-size: 0.88rem; font-family: inherit; outline: none;
+      flex: 1; padding: 9px 12px; border: 1.5px solid #b0c4de;
+      border-radius: 8px; font-size: 0.88rem; font-family: inherit; outline: none;
     }
     .password-area input:focus { border-color: #1565c0; }
     .pw-btn {
@@ -139,15 +146,11 @@
       border: none; border-radius: 8px; font-size: 0.85rem;
       font-weight: 600; cursor: pointer; font-family: inherit;
     }
-
     .list-area { display: none; }
     .list-area.open { display: block; }
 
     /* ── 통계 카드 ── */
-    .stat-cards {
-      display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px;
-      margin-bottom: 18px;
-    }
+    .stat-cards { display: grid; grid-template-columns: repeat(3,1fr); gap: 10px; margin-bottom: 18px; }
     .stat-card {
       background: linear-gradient(135deg, #e3eaf5, #f0f4fb);
       border-radius: 10px; padding: 14px 12px; text-align: center;
@@ -157,7 +160,7 @@
     .stat-card .s-val  { font-size: 1.5rem; font-weight: 800; color: #0d47a1; margin: 4px 0 2px; }
     .stat-card .s-lbl  { font-size: 0.7rem; color: #5c7a9a; font-weight: 600; }
 
-    /* ── 차트 영역 ── */
+    /* ── 차트 ── */
     .chart-section { margin-bottom: 18px; }
     .chart-title {
       font-size: 0.82rem; font-weight: 700; color: #2c4a6e;
@@ -167,24 +170,21 @@
       content: ''; width: 3px; height: 14px;
       background: #1565c0; border-radius: 2px; display: inline-block;
     }
-
-    /* 날짜별 막대 차트 */
     .bar-chart { display: flex; flex-direction: column; gap: 6px; }
     .bar-row   { display: flex; align-items: center; gap: 8px; font-size: 0.78rem; }
     .bar-label { width: 80px; color: #546e7a; font-weight: 600; flex-shrink: 0; text-align: right; }
-    .bar-track { flex: 1; background: #e8eef5; border-radius: 4px; height: 22px; overflow: hidden; position: relative; }
+    .bar-track { flex: 1; background: #e8eef5; border-radius: 4px; height: 22px; overflow: hidden; }
     .bar-fill  {
       height: 100%; border-radius: 4px;
       background: linear-gradient(90deg, #1565c0, #42a5f5);
-      transition: width 0.6s ease; display: flex; align-items: center; justify-content: flex-end; padding-right: 6px;
+      transition: width 0.6s ease; display: flex; align-items: center;
+      justify-content: flex-end; padding-right: 6px;
     }
     .bar-fill span { font-size: 0.7rem; color: #fff; font-weight: 700; }
     .bar-count { width: 28px; color: #0d47a1; font-weight: 700; flex-shrink: 0; }
-
-    /* 시간대 도넛-바 */
     .time-chart { display: flex; flex-direction: column; gap: 5px; }
     .time-row   { display: flex; align-items: center; gap: 8px; font-size: 0.76rem; }
-    .time-label { width: 60px; color: #546e7a; font-weight: 600; flex-shrink: 0; text-align: right; }
+    .time-label { width: 80px; color: #546e7a; font-weight: 600; flex-shrink: 0; text-align: right; }
     .time-track { flex: 1; background: #e8eef5; border-radius: 4px; height: 16px; overflow: hidden; }
     .time-fill  {
       height: 100%; border-radius: 4px;
@@ -195,47 +195,57 @@
 
     /* ── 테이블 ── */
     .table-wrap-scroll { overflow-x: auto; }
-    .applicant-table {
-      width: 100%; border-collapse: collapse; font-size: 0.85rem; min-width: 400px;
-    }
+    .applicant-table { width: 100%; border-collapse: collapse; font-size: 0.85rem; min-width: 400px; }
     .applicant-table th {
       background: #e3eaf5; color: #0d47a1;
       padding: 9px 12px; text-align: left; font-weight: 700;
     }
     .applicant-table th:first-child { border-radius: 8px 0 0 0; }
     .applicant-table th:last-child  { border-radius: 0 8px 0 0; }
-    .applicant-table td {
-      padding: 9px 12px; border-bottom: 1px solid #e8eef5; color: #2c3e50;
-    }
+    .applicant-table td { padding: 9px 12px; border-bottom: 1px solid #e8eef5; color: #2c3e50; }
     .applicant-table tr:last-child td { border-bottom: none; }
     .applicant-table tr:hover td { background: #f5f8ff; }
     .no-data { text-align: center; color: #90a4ae; padding: 24px 0; font-size: 0.88rem; }
     .delete-btn {
-      background: none; border: 1px solid #ef9a9a;
-      color: #e53935; border-radius: 6px;
-      padding: 3px 10px; font-size: 0.75rem; cursor: pointer;
-      font-family: inherit; transition: all 0.2s;
+      background: none; border: 1px solid #ef9a9a; color: #e53935;
+      border-radius: 6px; padding: 3px 10px; font-size: 0.75rem;
+      cursor: pointer; font-family: inherit; transition: all 0.2s;
     }
     .delete-btn:hover { background: #ffebee; }
 
-    /* ── 하단 버튼 행 ── */
+    /* ── 하단 버튼 ── */
     .btn-row { display: flex; gap: 8px; margin-top: 14px; flex-wrap: wrap; }
     .excel-btn {
       padding: 9px 18px;
       background: linear-gradient(135deg, #1b5e20, #2e7d32);
-      color: #fff; border: none; border-radius: 8px;
-      font-size: 0.85rem; font-weight: 700; cursor: pointer;
-      font-family: inherit; display: flex; align-items: center; gap: 6px;
-      transition: opacity 0.2s;
+      color: #fff; border: none; border-radius: 8px; font-size: 0.85rem;
+      font-weight: 700; cursor: pointer; font-family: inherit;
+      display: flex; align-items: center; gap: 6px; transition: opacity 0.2s;
     }
     .excel-btn:hover { opacity: 0.88; }
     .clear-btn {
-      background: none; border: 1px solid #ef9a9a;
-      color: #c62828; border-radius: 8px;
-      padding: 9px 14px; font-size: 0.8rem; font-weight: 600;
-      cursor: pointer; font-family: inherit; transition: all 0.2s;
+      background: none; border: 1px solid #ef9a9a; color: #c62828;
+      border-radius: 8px; padding: 9px 14px; font-size: 0.8rem;
+      font-weight: 600; cursor: pointer; font-family: inherit; transition: all 0.2s;
     }
     .clear-btn:hover { background: #ffebee; }
+
+    /* ── 로딩 스피너 ── */
+    .spinner {
+      display: inline-block; width: 16px; height: 16px;
+      border: 2px solid rgba(255,255,255,0.4);
+      border-top-color: #fff; border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ── DB 설정 안내 배너 ── */
+    .setup-banner {
+      background: #fff8e1; border: 1.5px solid #ffe082;
+      border-radius: 10px; padding: 14px 16px; margin-bottom: 14px;
+      font-size: 0.82rem; color: #5d4037; line-height: 1.7;
+    }
+    .setup-banner strong { color: #e65100; }
 
     /* ── 푸터 ── */
     footer {
@@ -267,6 +277,7 @@
     <div class="edu-title">🦷 구강보건교육</div>
     <div class="edu-sub">전문 강사와 함께하는 무료 구강건강 특강</div>
     <div class="free-badge">✅ 무료 참가</div>
+    <div><span class="live-badge"><span class="live-dot"></span>실시간 공유 예약 시스템</span></div>
   </div>
 </header>
 
@@ -316,53 +327,46 @@
       <label>연락처 <span>*</span></label>
       <input type="tel" id="phoneInput" placeholder="010-0000-0000" maxlength="13" />
     </div>
-    <button class="submit-btn" onclick="submitForm()">📝 신청하기</button>
+    <button class="submit-btn" id="submitBtn" onclick="submitForm()">📝 신청하기</button>
     <div class="alert" id="alertBox"></div>
   </div>
 </section>
 
 <!-- 관리자 패널 -->
 <section class="admin-section">
-  <button class="admin-toggle" onclick="toggleAdmin()">🔐 관리자 신청자 확인</button>
+  <button class="admin-toggle" onclick="toggleAdmin()">🔐 관리자 신청 현황</button>
   <div class="admin-panel" id="adminPanel">
     <div class="admin-header">
       <h3>신청 현황</h3>
-      <span class="count-badge" id="countBadge">0명</span>
+      <span class="count-badge" id="countBadge">불러오는 중…</span>
     </div>
 
     <div class="password-area">
-      <input type="password" id="pwInput" placeholder="관리자 비밀번호 입력" onkeydown="if(event.key==='Enter')checkPassword()" />
+      <input type="password" id="pwInput" placeholder="관리자 비밀번호 입력"
+             onkeydown="if(event.key==='Enter')checkPassword()" />
       <button class="pw-btn" onclick="checkPassword()">확인</button>
     </div>
 
     <div class="list-area" id="listArea">
-
-      <!-- 통계 카드 -->
       <div class="stat-cards" id="statCards"></div>
 
-      <!-- 날짜별 차트 -->
       <div class="chart-section">
         <div class="chart-title">📅 날짜별 신청 현황</div>
         <div class="bar-chart" id="dateChart"></div>
       </div>
 
-      <!-- 시간대별 차트 -->
       <div class="chart-section">
         <div class="chart-title">🕐 시간대별 신청 현황</div>
         <div class="time-chart" id="timeChart"></div>
       </div>
 
-      <!-- 신청자 테이블 -->
       <div class="chart-title" style="margin-top:4px;">📋 신청자 목록</div>
       <div class="table-wrap-scroll">
         <div id="tableWrap"></div>
       </div>
 
-      <!-- 버튼 행 -->
       <div class="btn-row">
-        <button class="excel-btn" onclick="downloadExcel()">
-          📊 엑셀 다운로드 (3시트)
-        </button>
+        <button class="excel-btn" onclick="downloadExcel()">📊 엑셀 다운로드 (3시트)</button>
         <button class="clear-btn" onclick="clearAll()">🗑️ 전체 초기화</button>
       </div>
     </div>
@@ -376,8 +380,20 @@
 </footer>
 
 <script>
-  const STORAGE_KEY = 'donggu_edu_applicants';
-  const ADMIN_PW    = '4081';
+  /* ════════════════════════════════════════
+     ★ Supabase 설정 — 아래 두 값을 교체하세요
+  ════════════════════════════════════════ */
+  const SUPABASE_URL  = 'https://yzycbpugeswycjouldmd.supabase.co';
+  const SUPABASE_KEY  = 'sb_publishable__8L_fRWrQQNhKjNDl60EGw_Bha5cuCv';
+  const TABLE         = 'applicants';
+  const ADMIN_PW      = '4081';
+
+  /* Supabase 클라이언트 초기화 */
+  const { createClient } = supabase;
+  const db = createClient(SUPABASE_URL, SUPABASE_KEY);
+
+  /* DB 연결 여부 체크 */
+  const DB_READY = SUPABASE_URL !== 'YOUR_SUPABASE_URL';
 
   /* ── 전화번호 자동 포맷 ── */
   document.getElementById('phoneInput').addEventListener('input', function () {
@@ -388,21 +404,45 @@
   });
 
   /* ── 신청 제출 ── */
-  function submitForm() {
+  async function submitForm() {
+    if (!DB_READY) return showAlert('⚠️ Supabase 설정이 필요합니다. 관리자에게 문의하세요.', false);
+
     const name  = document.getElementById('nameInput').value.trim();
     const phone = document.getElementById('phoneInput').value.trim();
     if (!name)  return showAlert('이름을 입력해주세요.', false);
     if (!phone || phone.replace(/\D/g,'').length < 10)
                 return showAlert('올바른 연락처를 입력해주세요.', false);
-    const list = getList();
-    if (list.some(a => a.phone === phone))
-      return showAlert('이미 신청된 연락처입니다. 중복 신청은 불가합니다.', false);
-    list.push({ name, phone, date: now(), dateKey: todayKey(), hour: new Date().getHours() });
-    saveList(list);
-    document.getElementById('nameInput').value  = '';
-    document.getElementById('phoneInput').value = '';
-    showAlert(`✅ 신청이 완료되었습니다!\n${name}님, 2026년 6월 22일 동구청 2층 중강당에서 뵙겠습니다.`, true);
-    updateCount();
+
+    const btn = document.getElementById('submitBtn');
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner"></span> 신청 중…';
+
+    try {
+      /* 중복 체크 */
+      const { data: dup } = await db.from(TABLE).select('id').eq('phone', phone).maybeSingle();
+      if (dup) {
+        showAlert('이미 신청된 연락처입니다. 중복 신청은 불가합니다.', false);
+        return;
+      }
+
+      /* 신청 저장 */
+      const { error } = await db.from(TABLE).insert({
+        name,
+        phone,
+        created_at: new Date().toISOString(),
+      });
+      if (error) throw error;
+
+      document.getElementById('nameInput').value  = '';
+      document.getElementById('phoneInput').value = '';
+      showAlert(`✅ 신청이 완료되었습니다!\n${name}님, 2026년 6월 22일 동구청 2층 중강당에서 뵙겠습니다.`, true);
+      await loadCount();
+    } catch (e) {
+      showAlert('오류가 발생했습니다: ' + e.message, false);
+    } finally {
+      btn.disabled = false;
+      btn.innerHTML = '📝 신청하기';
+    }
   }
 
   function showAlert(msg, success) {
@@ -410,40 +450,78 @@
     el.textContent = msg;
     el.className = 'alert ' + (success ? 'success' : 'error');
     el.style.display = 'block';
-    setTimeout(() => { el.style.display = 'none'; }, 4500);
+    setTimeout(() => { el.style.display = 'none'; }, 5000);
   }
 
-  /* ── 관리자 패널 ── */
+  /* ── 총 신청자 수 (헤더용) ── */
+  async function loadCount() {
+    if (!DB_READY) { document.getElementById('countBadge').textContent = '-'; return; }
+    const { count } = await db.from(TABLE).select('*', { count: 'exact', head: true });
+    document.getElementById('countBadge').textContent = (count ?? 0) + '명';
+  }
+
+  /* ── 관리자 토글 ── */
   function toggleAdmin() {
     document.getElementById('adminPanel').classList.toggle('open');
-    updateCount();
+    loadCount();
   }
 
+  /* ── 비밀번호 확인 ── */
   function checkPassword() {
     const pw = document.getElementById('pwInput').value;
     if (pw === ADMIN_PW) {
       document.getElementById('listArea').classList.add('open');
       renderAll();
+      subscribeRealtime();
     } else {
       alert('비밀번호가 올바르지 않습니다.');
       document.getElementById('pwInput').value = '';
     }
   }
 
-  /* ── 전체 렌더 ── */
-  function renderAll() {
-    const list = getList();
+  /* ── 실시간 구독 (Supabase Realtime) ── */
+  let realtimeChannel = null;
+  function subscribeRealtime() {
+    if (!DB_READY || realtimeChannel) return;
+    realtimeChannel = db
+      .channel('applicants-changes')
+      .on('postgres_changes', { event: '*', schema: 'public', table: TABLE }, () => {
+        renderAll();
+        loadCount();
+      })
+      .subscribe();
+  }
+
+  /* ── 전체 데이터 로드 & 렌더 ── */
+  async function renderAll() {
+    if (!DB_READY) {
+      document.getElementById('tableWrap').innerHTML =
+        '<div class="no-data">⚠️ DB 미설정 — Supabase 연결 후 사용 가능합니다.</div>';
+      return;
+    }
+    const { data: list, error } = await db
+      .from(TABLE)
+      .select('*')
+      .order('created_at', { ascending: true });
+
+    if (error) {
+      document.getElementById('tableWrap').innerHTML =
+        '<div class="no-data">데이터 로드 오류: ' + error.message + '</div>';
+      return;
+    }
+
     renderStatCards(list);
     renderDateChart(list);
     renderTimeChart(list);
     renderTable(list);
+    document.getElementById('countBadge').textContent = list.length + '명';
   }
 
   /* ── 통계 카드 ── */
   function renderStatCards(list) {
-    const today = todayKey();
-    const todayCount = list.filter(a => a.dateKey === today).length;
-    const dates = new Set(list.map(a => a.dateKey)).size;
+    const todayStr = todayKey();
+    const todayCount = list.filter(a => a.created_at && a.created_at.startsWith(todayStr)).length;
+    const dates = new Set(list.map(a => a.created_at ? a.created_at.slice(0,10) : '')).size;
     document.getElementById('statCards').innerHTML = `
       <div class="stat-card">
         <div class="s-icon">👥</div>
@@ -462,21 +540,22 @@
       </div>`;
   }
 
-  /* ── 날짜별 막대 차트 ── */
+  /* ── 날짜별 차트 ── */
   function renderDateChart(list) {
     const map = {};
-    list.forEach(a => { map[a.dateKey] = (map[a.dateKey] || 0) + 1; });
+    list.forEach(a => {
+      const d = a.created_at ? a.created_at.slice(0,10).replace(/-/g,'.') : '미상';
+      map[d] = (map[d] || 0) + 1;
+    });
     const keys = Object.keys(map).sort();
     const max  = Math.max(...Object.values(map), 1);
     const el   = document.getElementById('dateChart');
-    if (keys.length === 0) { el.innerHTML = '<div class="no-data" style="font-size:0.8rem;">데이터 없음</div>'; return; }
+    if (!keys.length) { el.innerHTML = '<div class="no-data" style="font-size:0.8rem;">데이터 없음</div>'; return; }
     el.innerHTML = keys.map(k => {
-      const pct = Math.round((map[k] / max) * 100);
+      const pct = Math.round(map[k] / max * 100);
       return `<div class="bar-row">
         <div class="bar-label">${k.slice(5)}</div>
-        <div class="bar-track">
-          <div class="bar-fill" style="width:${pct}%"><span>${map[k]}명</span></div>
-        </div>
+        <div class="bar-track"><div class="bar-fill" style="width:${pct}%"><span>${map[k]}명</span></div></div>
         <div class="bar-count">${map[k]}</div>
       </div>`;
     }).join('');
@@ -485,223 +564,165 @@
   /* ── 시간대별 차트 ── */
   function renderTimeChart(list) {
     const slots = [
-      ['오전 9-12시', [9,10,11]],
-      ['오후 12-15시', [12,13,14]],
-      ['오후 15-18시', [15,16,17]],
-      ['오후 18-21시', [18,19,20]],
-      ['기타', 'other'],
+      ['오전 9–12시',  [9,10,11]],
+      ['오후 12–15시', [12,13,14]],
+      ['오후 15–18시', [15,16,17]],
+      ['오후 18–21시', [18,19,20]],
+      ['기타',         'other'],
     ];
-    const defined = [9,10,11,12,13,14,15,16,17,18,19,20];
+    const def = [9,10,11,12,13,14,15,16,17,18,19,20];
     const counts = slots.map(([, hrs]) => {
-      if (hrs === 'other') return list.filter(a => !defined.includes(a.hour ?? -1)).length;
-      return list.filter(a => hrs.includes(a.hour ?? -1)).length;
+      return list.filter(a => {
+        const h = a.created_at ? new Date(a.created_at).getHours() : -1;
+        return hrs === 'other' ? !def.includes(h) : hrs.includes(h);
+      }).length;
     });
     const max = Math.max(...counts, 1);
     const el  = document.getElementById('timeChart');
-    if (list.length === 0) { el.innerHTML = '<div class="no-data" style="font-size:0.8rem;">데이터 없음</div>'; return; }
-    el.innerHTML = slots.map(([label], i) => {
-      const pct = Math.round((counts[i] / max) * 100);
-      return `<div class="time-row">
-        <div class="time-label">${label}</div>
-        <div class="time-track"><div class="time-fill" style="width:${pct}%"></div></div>
+    if (!list.length) { el.innerHTML = '<div class="no-data" style="font-size:0.8rem;">데이터 없음</div>'; return; }
+    el.innerHTML = slots.map(([lbl], i) => `
+      <div class="time-row">
+        <div class="time-label">${lbl}</div>
+        <div class="time-track"><div class="time-fill" style="width:${Math.round(counts[i]/max*100)}%"></div></div>
         <div class="time-count">${counts[i]}</div>
-      </div>`;
-    }).join('');
+      </div>`).join('');
   }
 
   /* ── 신청자 테이블 ── */
   function renderTable(list) {
     const wrap = document.getElementById('tableWrap');
-    if (list.length === 0) {
-      wrap.innerHTML = '<div class="no-data">신청자가 없습니다.</div>'; return;
-    }
+    if (!list.length) { wrap.innerHTML = '<div class="no-data">신청자가 없습니다.</div>'; return; }
     wrap.innerHTML = `
       <table class="applicant-table">
-        <thead>
-          <tr><th>번호</th><th>이름</th><th>연락처</th><th>신청일시</th><th>삭제</th></tr>
-        </thead>
-        <tbody>
-          ${list.map((a, i) => `
-            <tr>
-              <td>${i + 1}</td>
-              <td>${esc(a.name)}</td>
-              <td>${esc(a.phone)}</td>
-              <td>${esc(a.date)}</td>
-              <td><button class="delete-btn" onclick="deleteOne(${i})">삭제</button></td>
-            </tr>`).join('')}
+        <thead><tr><th>번호</th><th>이름</th><th>연락처</th><th>신청일시</th><th>삭제</th></tr></thead>
+        <tbody>${list.map((a, i) => `
+          <tr>
+            <td>${i + 1}</td>
+            <td>${esc(a.name)}</td>
+            <td>${esc(a.phone)}</td>
+            <td>${a.created_at ? fmtDate(a.created_at) : '-'}</td>
+            <td><button class="delete-btn" onclick="deleteOne('${a.id}')">삭제</button></td>
+          </tr>`).join('')}
         </tbody>
       </table>`;
   }
 
   /* ── 개별 삭제 ── */
-  function deleteOne(idx) {
+  async function deleteOne(id) {
     if (!confirm('해당 신청자를 삭제하시겠습니까?')) return;
-    const list = getList();
-    list.splice(idx, 1);
-    saveList(list);
-    renderAll(); updateCount();
+    await db.from(TABLE).delete().eq('id', id);
+    await renderAll();
+    await loadCount();
   }
 
   /* ── 전체 초기화 ── */
-  function clearAll() {
+  async function clearAll() {
     if (!confirm('전체 신청자 목록을 초기화하시겠습니까?\n이 작업은 되돌릴 수 없습니다.')) return;
-    saveList([]);
-    renderAll(); updateCount();
-  }
-
-  /* ── 카운트 업데이트 ── */
-  function updateCount() {
-    document.getElementById('countBadge').textContent = getList().length + '명';
+    await db.from(TABLE).delete().neq('id', '00000000-0000-0000-0000-000000000000');
+    await renderAll();
+    await loadCount();
   }
 
   /* ════════════════════════════════
      엑셀 다운로드 (3시트)
   ════════════════════════════════ */
-  function downloadExcel() {
-    const list = getList();
-    const wb   = XLSX.utils.book_new();
+  async function downloadExcel() {
+    const { data: list } = await db.from(TABLE).select('*').order('created_at', { ascending: true });
+    const wb = XLSX.utils.book_new();
 
-    /* ── Sheet 1: 신청자목록 ── */
-    const s1Data = [
+    /* Sheet 1: 신청자목록 */
+    const s1 = [
       ['동구보건소 구강보건교육 신청자 목록'],
       ['교육일: 2026년 6월 22일 (월)  |  장소: 동구청 2층 중강당  |  강사: 울산대학교병원 장애인구강진료센터장'],
       [],
       ['번호', '이름', '연락처', '신청일시'],
-      ...list.map((a, i) => [i + 1, a.name, a.phone, a.date]),
+      ...(list || []).map((a, i) => [i+1, a.name, a.phone, a.created_at ? fmtDate(a.created_at) : '']),
     ];
-    if (list.length === 0) s1Data.push(['', '(신청자 없음)', '', '']);
-    const ws1 = XLSX.utils.aoa_to_sheet(s1Data);
-    ws1['!cols'] = [{ wch: 6 }, { wch: 12 }, { wch: 16 }, { wch: 20 }];
-    ws1['!merges'] = [
-      { s: { r: 0, c: 0 }, e: { r: 0, c: 3 } },
-      { s: { r: 1, c: 0 }, e: { r: 1, c: 3 } },
-    ];
+    if (!list?.length) s1.push(['', '(신청자 없음)', '', '']);
+    const ws1 = XLSX.utils.aoa_to_sheet(s1);
+    ws1['!cols'] = [{wch:6},{wch:12},{wch:16},{wch:22}];
+    ws1['!merges'] = [{s:{r:0,c:0},e:{r:0,c:3}},{s:{r:1,c:0},e:{r:1,c:3}}];
     XLSX.utils.book_append_sheet(wb, ws1, '신청자목록');
 
-    /* ── Sheet 2: 요약정리 ── */
+    /* Sheet 2: 요약정리 */
     const dateMap = {};
-    list.forEach(a => { dateMap[a.dateKey || '미상'] = (dateMap[a.dateKey || '미상'] || 0) + 1; });
-    const dateRows = Object.keys(dateMap).sort().map(k => [k, dateMap[k] + '명', '']);
-
+    (list||[]).forEach(a => {
+      const d = a.created_at ? a.created_at.slice(0,10) : '미상';
+      dateMap[d] = (dateMap[d]||0)+1;
+    });
     const slots = [
-      ['오전 9–12시',  [9,10,11]],
-      ['오후 12–15시', [12,13,14]],
-      ['오후 15–18시', [15,16,17]],
-      ['오후 18–21시', [18,19,20]],
-      ['기타시간',     'other'],
+      ['오전 9–12시',[9,10,11]],['오후 12–15시',[12,13,14]],
+      ['오후 15–18시',[15,16,17]],['오후 18–21시',[18,19,20]],['기타','other'],
     ];
     const def = [9,10,11,12,13,14,15,16,17,18,19,20];
-    const timeRows = slots.map(([lbl, hrs]) => {
-      const cnt = hrs === 'other'
-        ? list.filter(a => !def.includes(a.hour ?? -1)).length
-        : list.filter(a => hrs.includes(a.hour ?? -1)).length;
-      return [lbl, cnt + '명', Math.round(cnt / (list.length || 1) * 100) + '%'];
-    });
-
-    const s2Data = [
-      ['동구보건소 구강보건교육 신청 현황 요약'],
-      [],
-      ['▶ 프로그램 정보'],
-      ['항목', '내용'],
-      ['교육명', '구강보건교육'],
-      ['교육일', '2026년 6월 22일 (월요일)'],
-      ['장소', '동구청 2층 중강당'],
-      ['강사', '울산대학교병원 장애인구강진료센터장'],
-      ['참가비', '무료'],
-      ['주최', '동구보건소'],
-      [],
-      ['▶ 신청 현황 요약'],
-      ['구분', '수치'],
-      ['총 신청자 수', list.length + '명'],
-      ['신청 접수 기간(일수)', new Set(list.map(a => a.dateKey)).size + '일'],
-      [],
-      ['▶ 날짜별 신청 현황'],
-      ['신청일', '신청자 수', ''],
-      ...(dateRows.length ? dateRows : [['(데이터 없음)', '', '']]),
-      [],
-      ['▶ 시간대별 신청 현황'],
-      ['시간대', '신청자 수', '비율'],
-      ...timeRows,
+    const s2 = [
+      ['동구보건소 구강보건교육 신청 현황 요약'],[], ['▶ 프로그램 정보'],
+      ['항목','내용'],['교육명','구강보건교육'],['교육일','2026년 6월 22일 (월요일)'],
+      ['장소','동구청 2층 중강당'],['강사','울산대학교병원 장애인구강진료센터장'],
+      ['참가비','무료'],['주최','동구보건소'],[],
+      ['▶ 신청 현황 요약'],['구분','수치'],
+      ['총 신청자 수',(list?.length||0)+'명'],
+      ['신청 접수 기간(일수)',new Set((list||[]).map(a=>a.created_at?.slice(0,10))).size+'일'],[],
+      ['▶ 날짜별 신청 현황'],['신청일','신청자 수'],
+      ...Object.keys(dateMap).sort().map(k=>[k, dateMap[k]+'명']),
+      [],['▶ 시간대별 신청 현황'],['시간대','신청자 수','비율'],
+      ...slots.map(([lbl,hrs])=>{
+        const cnt=(list||[]).filter(a=>{
+          const h=a.created_at?new Date(a.created_at).getHours():-1;
+          return hrs==='other'?!def.includes(h):hrs.includes(h);
+        }).length;
+        return [lbl, cnt+'명', (list?.length?Math.round(cnt/list.length*100):0)+'%'];
+      }),
     ];
-    const ws2 = XLSX.utils.aoa_to_sheet(s2Data);
-    ws2['!cols'] = [{ wch: 20 }, { wch: 14 }, { wch: 10 }];
-    ws2['!merges'] = [{ s: { r: 0, c: 0 }, e: { r: 0, c: 2 } }];
+    const ws2 = XLSX.utils.aoa_to_sheet(s2);
+    ws2['!cols'] = [{wch:20},{wch:14},{wch:10}];
+    ws2['!merges'] = [{s:{r:0,c:0},e:{r:0,c:2}}];
     XLSX.utils.book_append_sheet(wb, ws2, '요약정리');
 
-    /* ── Sheet 3: 시각화데이터 ── */
-    // 날짜별 데이터 (차트용)
-    const dateKeys  = Object.keys(dateMap).sort();
-    const dateVals  = dateKeys.map(k => dateMap[k]);
-
-    // 시간대별 데이터 (차트용)
-    const slotLabels = slots.map(s => s[0]);
-    const def2 = [9,10,11,12,13,14,15,16,17,18,19,20];
-    const slotVals = slots.map(([, hrs]) =>
-      hrs === 'other'
-        ? list.filter(a => !def2.includes(a.hour ?? -1)).length
-        : list.filter(a => hrs.includes(a.hour ?? -1)).length
-    );
-
-    // 막대 시각화 (ASCII 바)
-    const maxDate = Math.max(...dateVals, 1);
-    const maxSlot = Math.max(...slotVals, 1);
-    const BAR = (n, max) => '█'.repeat(Math.round(n / max * 20)) + ' ' + n + '명';
-
-    const s3Data = [
+    /* Sheet 3: 시각화데이터 */
+    const dk = Object.keys(dateMap).sort();
+    const dv = dk.map(k=>dateMap[k]);
+    const maxD = Math.max(...dv,1);
+    const BAR = (n,mx) => '█'.repeat(Math.round(n/mx*20))+' '+n+'명';
+    const sv = slots.map(([,hrs])=>(list||[]).filter(a=>{
+      const h=a.created_at?new Date(a.created_at).getHours():-1;
+      return hrs==='other'?!def.includes(h):hrs.includes(h);
+    }).length);
+    const maxS = Math.max(...sv,1);
+    const s3 = [
       ['동구보건소 구강보건교육 신청 시각화 데이터'],
-      ['※ 아래 데이터를 선택 후 [삽입 → 차트]를 클릭하면 Excel 차트를 생성할 수 있습니다.'],
-      [],
-      ['■ 날짜별 신청 현황 (차트용 데이터)'],
-      ['신청일', '신청자 수', '막대 그래프'],
-      ...(dateKeys.length
-        ? dateKeys.map((k, i) => [k, dateVals[i], BAR(dateVals[i], maxDate)])
-        : [['(데이터 없음)', 0, '']]),
-      [],
-      ['■ 시간대별 신청 현황 (차트용 데이터)'],
-      ['시간대', '신청자 수', '비율(%)', '막대 그래프'],
-      ...slotLabels.map((lbl, i) => [
-        lbl,
-        slotVals[i],
-        list.length ? Math.round(slotVals[i] / list.length * 100) : 0,
-        BAR(slotVals[i], maxSlot),
-      ]),
-      [],
-      ['■ 누적 신청 추이 (일별)'],
-      ['신청일', '누적 신청자 수'],
-      ...(dateKeys.length
-        ? dateKeys.map((k, i) => [k, dateVals.slice(0, i + 1).reduce((a, b) => a + b, 0)])
-        : [['(데이터 없음)', 0]]),
+      ['※ 데이터 선택 후 [삽입 → 차트]를 클릭하면 Excel 차트를 만들 수 있습니다.'],
+      [],['■ 날짜별 신청 현황'],['신청일','신청자 수','막대 그래프'],
+      ...(dk.length?dk.map((k,i)=>[k,dv[i],BAR(dv[i],maxD)]):[['(없음)',0,'']]),
+      [],['■ 시간대별 신청 현황'],['시간대','신청자 수','비율(%)','막대 그래프'],
+      ...slots.map(([lbl],i)=>[lbl,sv[i],list?.length?Math.round(sv[i]/list.length*100):0,BAR(sv[i],maxS)]),
+      [],['■ 누적 신청 추이'],['신청일','누적 신청자 수'],
+      ...(dk.length?dk.map((k,i)=>[k,dv.slice(0,i+1).reduce((a,b)=>a+b,0)]):[['(없음)',0]]),
     ];
-    const ws3 = XLSX.utils.aoa_to_sheet(s3Data);
-    ws3['!cols'] = [{ wch: 18 }, { wch: 12 }, { wch: 12 }, { wch: 30 }];
-    ws3['!merges'] = [
-      { s: { r: 0, c: 0 }, e: { r: 0, c: 3 } },
-      { s: { r: 1, c: 0 }, e: { r: 1, c: 3 } },
-    ];
+    const ws3 = XLSX.utils.aoa_to_sheet(s3);
+    ws3['!cols'] = [{wch:18},{wch:12},{wch:10},{wch:30}];
+    ws3['!merges'] = [{s:{r:0,c:0},e:{r:0,c:3}},{s:{r:1,c:0},e:{r:1,c:3}}];
     XLSX.utils.book_append_sheet(wb, ws3, '시각화데이터');
 
-    /* ── 파일 다운로드 ── */
-    const fileName = `동구보건소_구강보건교육_신청현황_${todayKey().replace(/\./g,'')}.xlsx`;
-    XLSX.writeFile(wb, fileName);
+    XLSX.writeFile(wb, `동구보건소_구강보건교육_신청현황_${todayKey().replace(/\./g,'')}.xlsx`);
   }
 
   /* ── 헬퍼 ── */
-  function getList()      { return JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]'); }
-  function saveList(list) { localStorage.setItem(STORAGE_KEY, JSON.stringify(list)); }
-  function esc(s) {
-    return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-  }
-  function now() {
-    const d = new Date();
+  function fmtDate(iso) {
+    const d = new Date(iso);
     return `${d.getFullYear()}.${z(d.getMonth()+1)}.${z(d.getDate())} ${z(d.getHours())}:${z(d.getMinutes())}`;
   }
   function todayKey() {
     const d = new Date();
-    return `${d.getFullYear()}.${z(d.getMonth()+1)}.${z(d.getDate())}`;
+    return `${d.getFullYear()}-${z(d.getMonth()+1)}-${z(d.getDate())}`;
   }
   function z(n) { return String(n).padStart(2,'0'); }
+  function esc(s) {
+    return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
 
-  updateCount();
+  /* 초기 카운트 */
+  loadCount();
 </script>
 </body>
 </html>
